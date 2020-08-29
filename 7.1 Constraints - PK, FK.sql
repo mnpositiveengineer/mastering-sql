@@ -116,3 +116,76 @@ CREATE TABLE StarsIn (
 		ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+
+-- 7.1.3
+
+-- define constraints (primary keys, foreign keys) in products database.
+
+use products;
+
+ALTER TABLE products
+ADD CONSTRAINT PRIMARY KEY(model);
+
+ALTER TABLE products
+MODIFY model INT NOT NULL;
+
+ALTER TABLE notebook
+ADD CONSTRAINT FOREIGN KEY(model) REFERENCES products(model)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+ALTER TABLE pc
+ADD CONSTRAINT FOREIGN KEY(model) REFERENCES products(model)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+ALTER TABLE printer
+ADD CONSTRAINT FOREIGN KEY(model) REFERENCES products(model)
+ON UPDATE CASCADE
+ON DELETE CASCADE;
+
+-- in case of deleting
+ALTER TABLE notebook DROP FOREIGN KEY notebook_ibfk_1;
+ALTER TABLE pc DROP FOREIGN KEY pc_ibfk_1;
+ALTER TABLE printer DROP FOREIGN KEY printer_ibfk_1;
+
+ALTER TABLE notebook
+MODIFY model INT NOT NULL;
+ALTER TABLE pc
+MODIFY model INT NOT NULL;
+ALTER TABLE printer
+MODIFY model INT NOT NULL;
+
+-- test 1: should not add to table pc, notebook and printer if product does not exist in table products
+
+INSERT INTO notebook (model)
+VALUES (1);
+INSERT INTO pc (model)
+VALUES (1);
+INSERT INTO printer (model)
+VALUES (1);
+
+-- test 2: should not add to table pc, notebook and printer model of value null
+
+INSERT INTO notebook (model)
+VALUES (null);
+INSERT INTO pc (model)
+VALUES (null);
+INSERT INTO printer (model)
+VALUES (null);
+
+-- test 3: should not add to table products when model is null
+
+INSERT INTO products (model)
+VALUES (null);
+
+-- test 4: should update the values of model in tables: pc, notebook and printer when values in table products is changed
+
+UPDATE products SET model = 1111 WHERE model = 1001;
+UPDATE products SET model = 2222 WHERE model = 2001;
+UPDATE products SET model = 3333 WHERE model = 3001;
+
+-- test 5: should delete models from pc, notebook and printer when models in table products is deleted
+
+DELETE FROM products WHERE model IN (1111, 2222, 3333);
+
