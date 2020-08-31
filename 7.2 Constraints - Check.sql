@@ -206,8 +206,8 @@ CREATE TABLE FilmProducer (
 	name CHAR(30),
     adress CHAR(255),
     certificate INT PRIMARY KEY,
-    salary INT,
-    CHECK (name NOT IN (SELECT name FROM star))
+    salary INT
+    -- CHECK (name NOT IN (SELECT name FROM star))
 );
 
 ALTER TABLE star
@@ -224,8 +224,8 @@ CREATE TABLE film (
 	PRIMARY KEY (title, year),
 	FOREIGN KEY (studio) REFERENCES studio (name)
 	ON UPDATE CASCADE
-	ON DELETE SET NULL
-	DEFERRABLE INITIALLY DEFERRED,
+	ON DELETE SET NULL,
+	-- DEFERRABLE INITIALLY DEFERRED,
 	FOREIGN KEY (producer) REFERENCES FilmProducer (certificate)
 	ON UPDATE CASCADE
 	ON DELETE SET NULL
@@ -237,8 +237,8 @@ CREATE TABLE studio (
 	director INT,
 	FOREIGN KEY (director) REFERENCES FilmProducer (certificate)
 	ON UPDATE CASCADE
-	ON DELETE SET NULL,
-	CHECK (name IN (SELECT DISTINCT studio FROM film))
+	ON DELETE SET NULL
+	-- CHECK (name IN (SELECT DISTINCT studio FROM film))
 );
 
 CREATE TABLE starin (
@@ -250,6 +250,6 @@ CREATE TABLE starin (
 	ON DELETE CASCADE,
 	FOREIGN KEY (starName) REFERENCES star (name)
 	ON UPDATE CASCADE
-	ON DELETE CASCADE,
-	CHECK (filmYear > (SELECT birthDate FROM star WHERE name = starName)) 
+	ON DELETE CASCADE
+	-- CHECK (filmYear > (SELECT birthDate FROM star WHERE name = starName)) 
 );
