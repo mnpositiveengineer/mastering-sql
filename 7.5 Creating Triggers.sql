@@ -176,5 +176,71 @@ PROBLEM 1 [UNSOLVED]
 Error Code: 1442. 
 Can't update table 'notebook' in stored function/trigger because it is already used by statement which invoked this stored function/trigger.
 
+The truth is that the current trigger is using table "notebook", there is no chance to use it in this invoking procedure.
+*/
 
+-- d) while updating ram or hardDrive check, if updated PC has hardDrive at least 100 times bigger than ram
+
+DELIMITER **
+CREATE TRIGGER checkRamAndHardDrive
+BEFORE UPDATE ON pc
+FOR EACH ROW
+BEGIN
+IF (NEW.ram/10 > NEW.hardDrive)
+THEN
+SIGNAL SQLSTATE '02000' 
+SET MESSAGE_TEXT = 'hardDrive must be at least 100 times bigger.';
+END IF;
+END**
+DELIMITER ;
+ 
+DROP TRIGGER checkRamAndHardDrive;
+
+-- test1: should not update pc
+
+UPDATE pc SET ram = 1024, hardDrive = 100 WHERE model = 1000;
+
+-- test2: should update pc
+
+UPDATE pc SET ram = 1024, hardDrive = 200 WHERE model = 1000;
+
+-- e) while inserting entry of new pc, notebook or printer verify if this model does not exist in other relations (pc, printer, notebook).
+
+DELIMITER !!
+CREATE TRIGGER checkIfSuchModelDoesNotExistInOtherRelation
+BEFORE INSERT ON products
+FOR EACH ROW
+BEGIN
+IF ((NEW.type = 'pc' AND NEW.model IN ((SELECT model FROM printer) UNION (SELECT model FROM notebook)))
+OR (NEW.type = 'printer' AND NEW.model IN ((SELECT model FROM notebook) UNION (SELECT model FROM pc)))
+OR (NEW.type = 'notebook' AND NEW.model IN ((SELECT model FROM pc) UNION (SELECT model FROM printer))))
+THEN
+SIGNAL SQLSTATE '45000' 
+SET MESSAGE_TEXT = 'This mnumber of model is already assigned to other type';
+END IF;
+END!!
+DELIMITER ;
+
+DROP TRIGGER checkIfSuchModelDoesNotExistInOtherRelation;
+DELETE FROM products;
+
+-- test 1: should not insert to product table
+
+INSERT INTO products (model, type)
+VALUES (3000, 'pc');
+
+INSERT INTO products (model, type)
+VALUES (3000, 'notebook');
+
+INSERT INTO products (model, type)
+VALUES (1000, 'printer');
+
+INSERT INTO products (model, type)
+VALUES (1000, 'notebook');
+
+INSERT INTO products (model, type)
+VALUES (2001, 'printer');
+
+INSERT INTO products (model, type)
+VALUES (2001, 'pc');
 
