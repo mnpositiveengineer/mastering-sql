@@ -244,3 +244,57 @@ VALUES (2001, 'printer');
 INSERT INTO products (model, type)
 VALUES (2001, 'pc');
 
+
+-- 7.5.4
+-- write following constraints for hollywood schema using triggers. Each time reject modification if constraints are violated.
+-- we assume that desireable condition and constraint must be executed before event that trigger it. We prefer modification instead of rejection.
+use hollywood;
+-- a) ensure that star and film, which exists in starin table must exist also in star and film table respectively
+DELIMITER //
+CREATE TRIGGER beforeInsertIntoStarInInsertStarAndFilm
+BEFORE INSERT ON starin
+FOR EACH ROW
+BEGIN
+IF (NOT EXISTS (SELECT * FROM film WHERE title = NEW.filmTitle AND year = NEW.filmYear))
+THEN
+INSERT INTO film (title, year) VALUES (NEW.filmTitle, NEW.filmYear);
+END IF;
+IF (NEW.starName NOT IN (SELECT name FROM star))
+THEN
+INSERT INTO star (name) VALUES (NEW.starName);
+END IF;
+END//
+DELIMITER ;
+
+DROP TRIGGER beforeInsertIntoStarInInsertStarAndFilm;
+
+-- test1: star and movie that is inserted into starin table must be inserted also in star and film tables
+INSERT INTO starin (filmTitle, filmYear, starName)
+VALUES ('title', 1992, 'testing star');
+-- test2: should only insert new star into the star table
+INSERT INTO starin (filmTitle, filmYear, starName)
+VALUES ('title', 1992, 'testing star2');
+-- test3: should only insert new movie into the film table
+INSERT INTO starin (filmTitle, filmYear, starName)
+VALUES ('title2', 1992, 'testing star2');
+-- test4: should not insert into star and movie table, only to starin table
+INSERT INTO starin (filmTitle, filmYear, starName)
+VALUES ('title2', 1992, 'testing star');
+
+-- b) ensure that each film producer exists in database as studio director, film producer or in both roles in parallel
+DELIMITER //
+CREATE TRIGGER filmProducerAsStudioDirectorOrFilmProducer
+BEFORE INSERT ON filmproducer
+FOR EACH ROW
+BEGIN
+IF NEW.certificate NOT IN ((SELECT DISTINCT producer FROM film) UNION (SELECT DISTINCT director FROM studio))
+THEN
+SIGNAL SQLSTATE '45000' 
+SET MESSAGE_TEXT = 'Each filmproducer must be either studio director or producer of the film. Make sure to insert into studio or film table first.';
+END IF;
+END//
+DELIMITER ;
+
+DROP TRIGGER filmProducerAsStudioDirectorOrFilmProducer;
+
+
