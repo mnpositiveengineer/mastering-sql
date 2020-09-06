@@ -297,4 +297,134 @@ DELIMITER ;
 
 DROP TRIGGER filmProducerAsStudioDirectorOrFilmProducer;
 
+-- c) ensure that in each movie there is at least one female star and male start
 
+delete from starin;
+delete from film;
+delete from star;
+
+-- handling inserting into table 'film'
+
+DELIMITER //
+CREATE TRIGGER WomanAndManInEachMovie
+AFTER INSERT ON film
+FOR EACH ROW
+BEGIN
+IF (NOT EXISTS (SELECT * FROM star WHERE name = 'woman'))
+THEN
+INSERT INTO star (name, sex) VALUES ('woman', 'F');
+END IF;
+IF (NOT EXISTS (SELECT * FROM star WHERE name = 'man'))
+THEN
+INSERT INTO star (name, sex) VALUES ('man', 'M');
+END IF;
+INSERT INTO starin (filmTitle, filmYear, starName) VALUEs (NEW.title, NEW.year, 'woman');
+INSERT INTO starin (filmTitle, filmYear, starName) VALUEs (NEW.title, NEW.year, 'man');
+END//
+DELIMITER ;
+
+DROP TRIGGER WomanAndManInEachMovie;
+
+-- test1: should insert new movie, two new stars - woman and man and add to table starin information that either man and woman play in this new movie
+
+INSERT INTO film (title, year) VALUES ('test', 1992);
+
+-- test2: should insert new movie and add to table starin information that either man and woman play in this new movie
+
+INSERT INTO film (title, year) VALUES ('test1', 1992);
+
+-- handling deleting from table starin
+
+DELIMITER //
+CREATE TRIGGER WomanAndManInEachMovie2
+BEFORE DELETE ON starin
+FOR EACH ROW
+BEGIN
+IF (NOT EXISTS (SELECT name FROM starin si, star s 
+				WHERE si.starName = s.name
+				AND si.filmTitle = OLD.filmTitle
+                AND si.filmYear = OLD.filmYear
+                AND s.sex = 'F'
+                AND s.name <> OLD.starName)
+	OR
+    NOT EXISTS (SELECT name FROM starin si, star s 
+				WHERE si.starName = s.name
+				AND si.filmTitle = OLD.filmTitle
+                AND si.filmYear = OLD.filmYear
+                AND s.sex = 'M'
+                AND s.name <> OLD.starName)
+	)
+THEN
+SIGNAL SQLSTATE '45000' 
+SET MESSAGE_TEXT = 'Cannot delete this entry. It can not exist a movie without female actor and male actor.';
+END IF;
+END//
+DELIMITER ;
+
+DROP TRIGGER WomanAndManInEachMovie2;
+
+-- test1: cannot delete (test1, 1992, man) and (test1, 1992, woman) entries from table starin
+
+DELETE FROM starin WHERE filmTitle = 'test1' AND starName = 'woman';
+
+DELETE FROM starin WHERE filmTitle = 'test1' AND starName = 'man';
+
+DELETE FROM starin WHERE filmTitle = 'test1';
+
+-- test2: should be able to delete (test1, 1992, man) and (test1, 1992, woman) when other man and woman already plays in the movie
+
+INSERT INTO star (name, sex) VALUES ('woman2', 'F'), ('man2', 'M');
+INSERT INTO starin (filmTitle, filmYear, starName) VALUES ("test", 1992, 'woman2'), ("test", 1992, 'man2');
+
+DELETE FROM starin WHERE filmTitle = 'test' AND starName = 'woman';
+DELETE FROM starin WHERE filmTitle = 'test' AND starName = 'man';
+
+-- test3: cannot delete (test, 1992, man2) and (test, 1992, woman2) entries from table starin
+
+DELETE FROM starin WHERE filmTitle = 'test' AND starName = 'woman2';
+
+DELETE FROM starin WHERE filmTitle = 'test' AND starName = 'man2';
+
+DELETE FROM starin WHERE filmTitle = 'test';
+
+-- test4: cannot delete entry from star table which would violate the cosntraint that each move have to have at least one female and male actor
+
+DELETE FROM star WHERE name = 'man';
+DELETE FROM star WHERE name = 'man2';
+DELETE FROM star WHERE name = 'woman';
+DELETE FROM star WHERE name = 'woman2';
+
+-- TEST FAILED, ALTHOUGH WE HAVE 'ON DELETE CASCADE' CLAUSE IN STARIN TABLE FOR STARNAME
+
+-- handling deleting from star
+
+DELIMITER //
+CREATE TRIGGER preventFromDeletingStarWhenITVIolatesRulesAgainstAcorsInMovies
+BEFORE DELETE ON star
+FOR EACH ROW
+BEGIN
+IF 2 > ANY (SELECT count(distinct a.sex) as count
+FROM (SELECT si.filmTitle, s.sex, s.name 
+		FROM  star s, starin si
+		WHERE si.starName = s.name
+		AND si.filmTitle IN (SELECT DISTINCT filmTitle FROM starin si, star s WHERE si.starName = s.name AND s.name = OLD.name)) a
+WHERE a.name <> OLD.name
+GROUP BY a.filmTitle)
+THEN
+SIGNAL SQLSTATE '45000' 
+SET MESSAGE_TEXT = 'Cannot delete this entry. It will violate the constraint of at leas one female and male actor in each movie';
+END IF;
+END//
+DELIMITER ;
+
+DROP TRIGGER preventFromDeletingStarWhenITVIolatesRulesAgainstAcorsInMovies;
+
+-- test4: cannot delete entry from star table which would violate the cosntraint that each move have to have at least one female and male actor
+
+DELETE FROM star WHERE name = 'man';
+DELETE FROM star WHERE name = 'woman';
+
+-- test5: should allow to deleto entries
+
+DELETE FROM star WHERE name = 'man2';
+DELETE FROM star WHERE name = 'woman2';
