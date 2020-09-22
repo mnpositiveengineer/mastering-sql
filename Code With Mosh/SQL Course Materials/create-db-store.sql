@@ -1,7 +1,6 @@
-
-DROP DATABASE IF EXISTS `store`;
-CREATE DATABASE `store`;
-USE `store`;
+DROP DATABASE IF EXISTS `sql_store`;
+CREATE DATABASE `sql_store`;
+USE `sql_store`;
 
 CREATE TABLE `products` (
   `product_id` int(11) NOT NULL AUTO_INCREMENT,
