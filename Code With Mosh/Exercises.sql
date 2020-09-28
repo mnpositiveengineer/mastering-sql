@@ -1,3 +1,44 @@
+-- write a querry to produce a table consist of cutomer full name, points and category
+-- category = Gold if points > 3000
+-- category = Silver if points between 2000 and 3000
+-- cateogry = Bronce if points less than 2000
+
+SELECT
+	CONCAT(first_name, ' ', last_name) AS name,
+    points,
+    CASE
+		WHEN points > 3000 THEN 'Gold'
+        WHEN points BETWEEN 2000 AND 3000 THEN 'Silver'
+        ELSE 'Bronze'
+	END AS category
+FROM customers
+ORDER BY points DESC;
+
+-- write a querry to produce table consists of 'product_id', 'name', how many time it was ordered,
+-- and if more that once display 'many times' otherwise 'Once'
+
+use sql_store;
+
+SELECT 
+	DISTINCT p.product_id,
+    p.name,
+    COUNT(*) AS orders,
+    IF ( COUNT(*) > 1, 
+        'Many times',
+        'Once') AS frequency
+FROM products p
+JOIN order_items oi
+USING (product_id)
+GROUP BY product_id;
+
+
+-- Select customer first name and last name in one column and phone number and if the phone is null then return "Unknown"
+
+SELECT
+	CONCAT(first_name, ' ', last_name) AS name,
+    IFNULL(phone, 'Unknown') AS phone
+FROM customers;
+
 -- retrieve the table that shows client_id, client name,
 -- total sales of that client, average sales of all client
 -- the difference between total sales and average
@@ -139,6 +180,16 @@ SELECT * FROM products
 WHERE unit_price > (SELECT unit_price
                     FROM products
                     WHERE product_id = 3);
+
+
+                    
+-- Select all orders from this year
+
+use sql_store;
+
+SELECT *
+FROM orders
+WHERE YEAR(order_date) = YEAR(NOW());
 
 
 -- write a sql statement to
