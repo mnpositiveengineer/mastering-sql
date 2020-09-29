@@ -1,3 +1,34 @@
+CREATE OR REPLACE VIEW invoice_with_balance AS
+SELECT
+	*
+FROM invoices
+WHERE (invoice_total-payment_total) > 0
+WITH CHECK OPTION;
+
+UPDATE invoice_with_balance
+SET payment_total = invoice_total
+WHERE invoice_id = 1;
+
+UPDATE invoice_with_balance
+SET payment_total = invoice_total
+WHERE invoice_id = 5;
+
+
+
+-- create a view to see the balance for each client
+
+use sql_invoicing;
+
+CREATE VIEW clients_balance AS
+	SELECT 
+		c.client_id,
+        c.name,
+        SUM(i.payment_total - i.invoice_total) AS balance
+	FROM clients c
+    JOIN invoices i
+    USING (client_id)
+    GROUP BY client_id, name;
+
 -- write a querry to produce a table consist of cutomer full name, points and category
 -- category = Gold if points > 3000
 -- category = Silver if points between 2000 and 3000
