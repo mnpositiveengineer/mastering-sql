@@ -1,5 +1,80 @@
--- create procedure 'make_payment'
--- insert payment into payments table
+-- create function that calculates the risk factor for specific client and use it in select function
+-- risk factor = invoice_total/number_of_invoices *5
+
+DROP FUNCTION IF EXISTS calculate_risk_factor;
+
+DELIMITER $$
+CREATE FUNCTION calculate_risk_factor(client_id INT)
+RETURNS INT
+READS SQL DATA
+BEGIN
+	DECLARE risk_factor DECIMAL(9,2) DEFAULT 0;
+    DECLARE invoice_sum DECIMAL(9,2);
+    DECLARE number_of_invoices INT;
+    
+    SELECT COUNT(*), SUM(invoice_total)
+    INTO number_of_invoices, invoice_sum
+    FROM invoices i
+    WHERE i.client_id = IFNULL(client_id, i.client_id);
+    
+    SET risk_factor = invoice_sum/number_of_invoices * 5;
+	RETURN IFNULL(risk_factor, 0);
+END$$
+DELIMITER ;
+
+SELECT
+	client_id,
+    name,
+    calculate_risk_factor(client_id) AS risk_factor
+FROM clients
+ORDER BY risk_factor DESC;
+
+-- create stored procedure that calculates the risk factor for specific client
+-- risk factor = invoice_total/number_of_invoices *5
+
+DROP PROCEDURE IF EXISTS calculate_risk_factor;
+
+DELIMITER $$
+CREATE PROCEDURE calculate_risk_factor (client_id INT)
+BEGIN
+	DECLARE risk_factor DECIMAL(9,2) DEFAULT 0;
+    DECLARE invoice_sum DECIMAL(9,2);
+    DECLARE number_of_invoices INT;
+    
+    SELECT COUNT(*), SUM(invoice_total)
+    INTO number_of_invoices, invoice_sum
+    FROM invoices i
+    WHERE i.client_id = IFNULL(client_id, i.client_id);
+    
+    SET risk_factor = invoice_sum/number_of_invoices * 5;
+    SELECT risk_factor;
+END$$
+DELIMITER ;
+-- create procedur get_unpaid_invoices_from_client
+-- where you select number of invoices of specific client and total amount of invoices
+-- number of invoices and total amount add to variables as output parameters
+
+DROP PROCEDURE IF EXISTS get_unpaid_invoices_from_client;
+
+DELIMITER $$
+CREATE PROCEDURE get_unpaid_invoices_from_client
+(
+	client_id INT,
+    OUT number_of_invoices INT,
+    OUT total_sum_of_invoices DECIMAL (9,2)
+)
+BEGIN
+	SELECT COUNT(*), SUM(invoice_total)
+    INTO number_of_invoices, total_sum_of_invoices
+    FROM invoices i
+    WHERE i.client_id = client_id;
+END$$
+DELIMITER ;
+
+select @number_of_invoices, @total_sum_of_invoices;
+
+-- create procedure 'make_payment' which
+-- inserts payment into payments table
 -- validate payment_amount value so it is more than 0
 
 DROP PROCEDURE IF EXISTS make_payment;
