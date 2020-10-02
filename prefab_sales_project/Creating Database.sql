@@ -136,6 +136,7 @@ DROP TABLE IF EXISTS AccessoriesBidElements;
 CREATE TABLE AccessoriesBidElements(
 	accessory_id BIGINT UNSIGNED NOT NULL,
     bid_element_id BIGINT UNSIGNED NOT NULL,
+    amount DECIMAL(9,2) NOT NULL,
     PRIMARY KEY (accessory_id, bid_element_id),
 	FOREIGN KEY (accessory_id) REFERENCES Accessories(id)
     ON UPDATE CASCADE
