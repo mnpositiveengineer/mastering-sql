@@ -293,100 +293,92 @@ BEGIN
 END$$
 DELIMITER ;
 
--- 12. Creating Procedures that calculates prices of bid elements
+-- 12. Creating procedure that calculates prices of all bid elements in selected project
 
--- to calculate prices in price_of_bidelements table use following formulas:
--- concrete_cost = financialdetails.concrete_cost * volume
--- steel_cost = financialdetails.steel_cost * (steel_saturation * volume)
--- tension_steel_cost = financialdetails.tension_steel_cost * (tension_steel_saturation * volume)
--- framework_cost = financialdetails.framework_cost * (area + width * height * 2 + length * height * 2)
--- man_hour_cost = financialdetails.man_hour_cost * volume
--- energy_water_cost = financialdetails.energy_water_cost * volume
--- faculty_cost = financialdetails.faculty_cost * volume
--- accessory_cost = accessories_bidelements.amount * accesories.unit_price
--- production_cost = concrete_cost + steel_cost + tension_steel_cost + framework_cost + man_hour_cost + energy_water_cost + faculty_cost + accessory_cost
--- total_production_cost = production_cost * amount
--- transport_cost = (total_weight of each type of elements / 21 ton) * financialdetails.transport_cost
--- total_transport_cost = transport_cost * amount
--- assembly_cost = financialdetails.assembly_cost
--- total_assembly_cost = total_assembly_cost * amount
--- element_cost = production_cost + transport_cost + ssembly_cost
--- total_element_cost = element_cost * amount
--- element_price = element_cost * (1 + markup)
--- total_element_price = element_price * amount
-
-DROP FUNCTION IF EXISTS calculate_element_concrete_cost;
+DROP PROCEDURE IF EXISTS calculated_all_prices_of_bid_elements_in_seleced_project;
 
 DELIMITER $$
-CREATE FUNCTION calculate_element_concrete_cost (bid_element_id INT)
-RETURNS DECIMAL (9,2)
-READS SQL DATA
+CREATE PROCEDURE calculated_all_prices_of_bid_elements_in_seleced_project(project_id INT)
 BEGIN
-	DECLARE fd_concrete_cost DECIMAL (9,2);
-    DECLARE b_volume DECIMAL (9,2);
-    DECLARE pb_concrete_cost DECIMAL (9,2);
-    
-    SELECT fd.concrete_cost, b.volume
-    INTO fd_concrete_cost, b_volume
-    FROM bidelements b
-    JOIN financialdetails fd
-    USING (project_id)
-    WHERE b.id = bid_element_id;
-    
-    SET pb_concrete_cost = fd_concrete_cost * b_volume;
-    
-    RETURN pb_concrete_cost;
-END$$
-DELIMITER ;
-
-DROP FUNCTION IF EXISTS calculate_element_steel_cost;
-
-DELIMITER $$
-CREATE FUNCTION calculate_element_steel_cost (bid_element_id INT)
-RETURNS DECIMAL (9,2)
-READS SQL DATA
-BEGIN
-    DECLARE fd_steel_cost DECIMAL (9,2);
-    DECLARE b_steel_saturation INT;
-	DECLARE b_volume DECIMAL (9,2);
-    DECLARE pb_steel_cost DECIMAL (9,2);
-    
-    SELECT fd.steel_cost, b.volume, b.steel_saturation
-    INTO fd_steel_cost, b_volume, b_steel_saturation
-    FROM bidelements b
-    JOIN financialdetails fd
-    USING (project_id)
-    WHERE b.id = bid_element_id;
-    
-    SET pb_steel_cost = fd_steel_cost * b_steel_saturation * b_volume;
-    
-    RETURN pb_steel_cost;
-END$$
-DELIMITER ;
-
-SELECT calculate_element_steel_cost (40);
-
-DROP FUNCTION IF EXISTS calculate_element_tension_steel_cost;
-
-DELIMITER $$
-CREATE FUNCTION calculate_element_tension_steel_cost (bid_element_id INT)
-RETURNS DECIMAL (9,2)
-READS SQL DATA
-BEGIN
-    DECLARE fd_tension_steel_cost DECIMAL (9,2);
-    DECLARE b_tension_steel_saturation INT;
-	DECLARE b_volume DECIMAL (9,2);
-    DECLARE pb_tension_steel_cost DECIMAL (9,2);
-    
-    SELECT fd.tension_steel_cost, b.volume, b.tension_steel_saturation
-    INTO fd_tension_steel_cost, b_volume, b_tension_steel_saturation
-    FROM bidelements b
-    JOIN financialdetails fd
-    USING (project_id)
-    WHERE b.id = bid_element_id;
-    
-    SET pb_tension_steel_cost = fd_tension_steel_cost * b_tension_steel_saturation * b_volume;
-    
-    RETURN pb_tension_steel_cost;
+    IF 
+    NOT EXISTS (SELECT * FROM financialdetails fd WHERE fd.project_id = project_id)
+    THEN
+	SIGNAL SQLSTATE '22003'
+	SET MESSAGE_TEXT = "No financial details assign to the project. Assign financial details first";
+    ELSE
+		BEGIN
+		DECLARE number_of_bid_elements INT;
+        DECLARE current_row INT;
+        DECLARE current_bid_element_id INT;
+        
+        SELECT count(*)
+        INTO number_of_bid_elements
+        FROM bidelements b
+        WHERE b.project_id = project_id;
+        
+        SET current_row = 0;
+        
+        WHILE current_row < number_of_bid_elements DO
+        
+        SELECT b.id
+        INTO current_bid_element_id
+        FROM bidelements b
+        WHERE b.project_id = project_id
+        LIMIT current_row,1;
+        
+        DELETE FROM pricesofbidelements pb
+        WHERE pb.bid_element_id = current_bid_element_id;
+        
+        INSERT INTO pricesofbidelements 
+        (
+			bid_element_id, 
+			amount, 
+			concrete_cost, 
+			steel_cost, 
+			tension_steel_cost, 
+			framework_cost, 
+			man_hour_cost, 
+			energy_water_cost, 
+			faculty_cost, 
+			accessory_cost, 
+			production_cost, 
+			total_production_cost, 
+			transport_cost, 
+			total_transport_cost, 
+			assembly_cost, 
+			total_assembly_cost, 
+			element_cost, 
+			total_element_cost, 
+			element_price, 
+			total_element_price
+		) VALUES
+        (
+			current_bid_element_id,
+            (SELECT amount FROM bidelements b WHERE b.id = current_bid_element_id),
+            (SELECT calculate_element_concrete_cost (current_bid_element_id)),
+			(SELECT calculate_element_steel_cost (current_bid_element_id)),
+			(SELECT calculate_element_tension_steel_cost (current_bid_element_id)),
+			(SELECT calculate_element_framework_cost (current_bid_element_id)),
+			(SELECT calculate_man_hour_cost (current_bid_element_id)),
+			(SELECT calculate_energy_water_cost (current_bid_element_id)),
+			(SELECT calculate_faculty_cost (current_bid_element_id)),
+			(SELECT calculate_accessory_cost (current_bid_element_id)),
+            (SELECT calculate_production_cost (current_bid_element_id)),
+            (SELECT calculate_total_production_cost (current_bid_element_id)),
+            (SELECT calculate_transport_cost (current_bid_element_id)),
+            (SELECT calculate_total_transport_cost (current_bid_element_id)),
+            (SELECT calculate_assembly_cost (current_bid_element_id)),
+            (SELECT calculate_total_assembly_cost (current_bid_element_id)),
+            (SELECT calculate_element_cost (current_bid_element_id)),
+            (SELECT calculate_total_element_cost(current_bid_element_id)),
+            (SELECT calculate_element_price(current_bid_element_id)),
+            (SELECT calculate_total_element_price(current_bid_element_id))
+        );
+        
+        SET current_row = current_row + 1;
+        
+        END WHILE;
+        END;
+	END IF;
 END$$
 DELIMITER ;
