@@ -149,8 +149,7 @@ CREATE TABLE AccessoriesBidElements(
 DROP TABLE IF EXISTS FinancialDetails;
 
 CREATE TABLE FinancialDetails(
-	id SERIAL PRIMARY KEY,
-    project_id BIGINT UNSIGNED NOT NULL,
+    project_id BIGINT UNSIGNED NOT NULL UNIQUE,
     concrete_cost DECIMAL(9,2) UNSIGNED,
     steel_cost DECIMAL(9,2) UNSIGNED,
     tension_steel_cost DECIMAL(9,2) UNSIGNED,

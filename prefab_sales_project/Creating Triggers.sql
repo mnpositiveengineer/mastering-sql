@@ -2,7 +2,7 @@
 
 USE prefab_sales;
 
--- each project must be assigned to at least one SalesPerson
+-- 1. Each project must be assigned to at least one SalesPerson
 -- automatically assign new project to SalesPerson and if SalesPerson does not exist, create a SalesPerson (director)
 
 DROP TRIGGER IF EXISTS AssignNewProjectToSalesPerson;
@@ -120,3 +120,10 @@ DELIMITER ;
 
 -- Error Code: 1422. Explicit or implicit commit is not allowed in stored function or trigger.
 */
+
+
+-- 2. On update of bidelement recalculate parameters and prices of bid element
+ 
+-- 3. On update of financialdetails recalculate all prices of all bid elements in the project
+
+-- 4. Create audit table which register all offer creation (on delete, on insert)

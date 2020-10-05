@@ -1,3 +1,21 @@
+-- crearing transaction
+
+use sql_store;
+
+START TRANSACTION;
+
+	INSERT INTO orders (customer_id, order_date, status)
+    VALUES (1, '2020-09-10', 1);
+    
+    INSERT INTO order_items
+    VALUES (LAST_INSERT_ID(), 1, 1, 1);
+    
+ROLLBACK;
+
+SHOW VARIABLES LIKE 'autocommit';
+
+SET autocommit = OFF;
+
 CREATE OR REPLACE VIEW invoice_with_balance AS
 SELECT
 	*
@@ -12,8 +30,6 @@ WHERE invoice_id = 1;
 UPDATE invoice_with_balance
 SET payment_total = invoice_total
 WHERE invoice_id = 5;
-
-
 
 -- create a view to see the balance for each client
 

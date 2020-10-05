@@ -382,3 +382,43 @@ BEGIN
 	END IF;
 END$$
 DELIMITER ;
+
+-- 13. Creating procedure that updates pricesofbidelement for selected bidelement
+
+DROP PROCEDURE IF EXISTS update_prices_for_selected_bid_element;
+
+DELIMITER $$
+CREATE PROCEDURE update_prices_for_selected_bid_element(bid_element_id INT)
+BEGIN
+	DECLARE amount INT;
+    
+    SELECT b.amount
+    INTO amount
+    FROM bidelements b
+    WHERE b.id = bid_element_id;
+    
+	UPDATE pricesofbidelements pb
+    SET
+			pb.amount = amount,
+			pb.concrete_cost =  calculate_element_concrete_cost (bid_element_id),
+			pb.steel_cost = calculate_element_steel_cost (bid_element_id),
+			pb.tension_steel_cost = calculate_element_tension_steel_cost (bid_element_id),
+			pb.framework_cost = calculate_element_framework_cost (bid_element_id),
+			pb.man_hour_cost = calculate_man_hour_cost (bid_element_id),
+			pb.energy_water_cost = calculate_energy_water_cost (bid_element_id),
+			pb.faculty_cost = calculate_faculty_cost (bid_element_id),
+			pb.accessory_cost = calculate_accessory_cost (bid_element_id),
+			pb.production_cost = calculate_production_cost (bid_element_id),
+			pb.total_production_cost = calculate_total_production_cost (bid_element_id),
+			pb.transport_cost = calculate_transport_cost (bid_element_id),
+			pb.total_transport_cost = calculate_total_transport_cost (bid_element_id),
+			pb.assembly_cost = calculate_assembly_cost (bid_element_id),
+			pb.total_assembly_cost = calculate_total_assembly_cost (bid_element_id),
+			pb.element_cost = calculate_element_cost (bid_element_id),
+			pb.total_element_cost = calculate_total_element_cost(bid_element_id),
+			pb.element_price = calculate_element_price(bid_element_id),
+			pb.total_element_price = calculate_total_element_price(bid_element_id)
+		WHERE pb.bid_element_id = bid_element_id;
+END$$
+DELIMITER ;
+

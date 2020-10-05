@@ -1,4 +1,4 @@
--- 12. Creating Functions that calculates prices of bid elements
+-- 1. Creating Functions that calculates prices of bid elements
 
 -- to calculate prices in price_of_bidelements table use following formulas:
 -- concrete_cost = financialdetails.concrete_cost * volume
