@@ -115,6 +115,7 @@ CREATE TABLE BidElements (
     tension_steel_saturation INT UNSIGNED,
     assembly_start DATE,
     assembly_end DATE,
+    other_properties JSON,
     FOREIGN KEY (project_id) REFERENCES Project(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,

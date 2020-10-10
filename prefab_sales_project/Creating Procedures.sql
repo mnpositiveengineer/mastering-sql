@@ -422,3 +422,109 @@ BEGIN
 END$$
 DELIMITER ;
 
+-- 14. Creating procedure that adds console to bid element
+
+DROP PROCEDURE IF EXISTS add_console_to_bid_element;
+
+DELIMITER $$
+CREATE PROCEDURE add_console_to_bid_element 
+(
+	bid_element_id INT,
+    name VARCHAR(50),
+    amount INT, 
+    height DECIMAL (3,2), 
+    width DECIMAL (3,2), 
+    length DECIMAL (3,2)
+)
+BEGIN
+	IF (SELECT b.other_properties 
+		FROM bidelements b 
+        WHERE b.id = bid_element_id) 
+        IS NULL
+    THEN
+	START TRANSACTION;
+		UPDATE bidelements b
+		SET other_properties = JSON_OBJECT(
+			CONCAT('console_',name), JSON_OBJECT('amount', amount,
+								'height', height,
+								'width', width,
+								'length', length
+							)
+		)
+		WHERE b.id = bid_element_id;
+		
+		CALL calculate_all_parameters(bid_element_id);
+	COMMIT;
+    ELSE
+    	START TRANSACTION;
+		UPDATE bidelements b
+		SET other_properties = JSON_SET(
+			other_properties,
+			CONCAT('$.console_',name), JSON_OBJECT(
+								'amount', amount,
+								'height', height,
+								'width', width,
+								'length', length
+							)
+		)
+		WHERE b.id = bid_element_id;
+		
+		CALL calculate_all_parameters(bid_element_id);
+	COMMIT;
+    END IF;
+END$$
+DELIMITER ;
+
+-- 15. Creating procedure that adds cutout to bid element
+
+DROP PROCEDURE IF EXISTS add_cutout_to_bid_element;
+
+DELIMITER $$
+CREATE PROCEDURE  add_cutout_to_bid_element 
+(
+	bid_element_id INT,
+    name VARCHAR(50),
+    amount INT, 
+    height DECIMAL (3,2), 
+    width DECIMAL (3,2), 
+    length DECIMAL (3,2)
+)
+BEGIN
+	IF (SELECT b.other_properties 
+		FROM bidelements b 
+        WHERE b.id = bid_element_id) 
+        IS NULL
+    THEN
+	START TRANSACTION;
+		UPDATE bidelements b
+		SET other_properties = JSON_OBJECT(
+			CONCAT('cutout_',name), JSON_OBJECT('amount', amount,
+								'height', height,
+								'width', width,
+								'length', length
+							)
+		)
+		WHERE b.id = bid_element_id;
+		
+		CALL calculate_all_parameters(bid_element_id);
+	COMMIT;
+    ELSE
+    	START TRANSACTION;
+		UPDATE bidelements b
+		SET other_properties = JSON_SET(
+			other_properties,
+			CONCAT('$.cutout_',name), JSON_OBJECT(
+								'amount', amount,
+								'height', height,
+								'width', width,
+								'length', length
+							)
+		)
+		WHERE b.id = bid_element_id;
+		
+		CALL calculate_all_parameters(bid_element_id);
+	COMMIT;
+    END IF;
+END$$
+DELIMITER ;
+
