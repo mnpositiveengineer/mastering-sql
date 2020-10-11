@@ -20,7 +20,7 @@ BEGIN
     FROM bidelements b
     WHERE b.id = bid_element_id;
     
-    SET volume = length * height * width;
+    SET volume = length * height * width + calculate_volume_of_consoles(bid_element_id) - calculate_volume_of_cutouts(bid_element_id);
     
     UPDATE bidelements b
     SET b.volume = volume
@@ -424,13 +424,24 @@ DELIMITER ;
 
 -- 14. Creating procedure that adds console to bid element
 
+/*
+EXAMPLE OF JSON FILE WITH 3 CONSOLES:
+{
+	"consoles": 
+		[
+			{"amount": 3, "dimensions": [0.30, 0.30, 0.30]},
+			{"amount": 2, "dimensions": [0.20, 0.20, 0.20]}, 
+			{"amount": 1, "dimensions": [0.10, 0.10, 0.10]}
+        ]
+}
+*/
+
 DROP PROCEDURE IF EXISTS add_console_to_bid_element;
 
 DELIMITER $$
 CREATE PROCEDURE add_console_to_bid_element 
 (
 	bid_element_id INT,
-    name VARCHAR(50),
     amount INT, 
     height DECIMAL (3,2), 
     width DECIMAL (3,2), 
@@ -442,48 +453,130 @@ BEGIN
         WHERE b.id = bid_element_id) 
         IS NULL
     THEN
-	START TRANSACTION;
-		UPDATE bidelements b
-		SET other_properties = JSON_OBJECT(
-			CONCAT('console_',name), JSON_OBJECT('amount', amount,
-								'height', height,
-								'width', width,
-								'length', length
-							)
-		)
-		WHERE b.id = bid_element_id;
+		START TRANSACTION;
+			UPDATE bidelements b
+			SET other_properties = JSON_OBJECT
+			(
+				'consoles', JSON_ARRAY
+				(
+					JSON_OBJECT
+					(
+                        'amount', amount,
+						'dimensions', JSON_ARRAY(height, width, length)
+					)
+				)
+			)
+			WHERE b.id = bid_element_id;
 		
-		CALL calculate_all_parameters(bid_element_id);
-	COMMIT;
+			CALL calculate_all_parameters(bid_element_id);
+		COMMIT;
     ELSE
-    	START TRANSACTION;
-		UPDATE bidelements b
-		SET other_properties = JSON_SET(
-			other_properties,
-			CONCAT('$.console_',name), JSON_OBJECT(
+		IF (SELECT JSON_EXTRACT(other_properties, '$.consoles')
+			FROM bidelements b
+			WHERE b.id = bid_element_id) IS NOT NULL
+        THEN
+			START TRANSACTION;
+				UPDATE bidelements b
+				SET other_properties = JSON_ARRAY_INSERT
+				(
+					other_properties,
+					'$.consoles[0]', JSON_OBJECT
+						(
+							'amount', amount,                     
+							'dimensions', JSON_ARRAY(height, width, length)
+						)
+				)
+				WHERE b.id = bid_element_id;
+				
+				CALL calculate_all_parameters(bid_element_id);
+			COMMIT;
+		ELSE
+			START TRANSACTION;
+				UPDATE bidelements b
+				SET other_properties = JSON_SET
+				(
+					other_properties,
+					'$.consoles', JSON_ARRAY
+						(
+							JSON_OBJECT
+							(
 								'amount', amount,
-								'height', height,
-								'width', width,
-								'length', length
+								'dimensions', JSON_ARRAY(height, width, length)
 							)
-		)
-		WHERE b.id = bid_element_id;
-		
-		CALL calculate_all_parameters(bid_element_id);
-	COMMIT;
-    END IF;
+						)
+				)
+				WHERE b.id = bid_element_id;
+				
+				CALL calculate_all_parameters(bid_element_id);
+			COMMIT;
+		END IF;
+	END IF;
 END$$
 DELIMITER ;
 
--- 15. Creating procedure that adds cutout to bid element
+-- 15. Creating procedure that removes consoles from bid element
+
+DROP PROCEDURE IF EXISTS remove_console_from_bid_element;
+
+DELIMITER $$
+CREATE PROCEDURE remove_console_from_bid_element 
+(
+	bid_element_id INT,
+    number INT
+)
+BEGIN
+	START TRANSACTION;
+		UPDATE bidelements b
+		SET other_properties = JSON_REMOVE
+        (
+			other_properties,
+            CONCAT('$.consoles[', number, ']')
+        )
+        WHERE b.id = bid_element_id;
+		
+        CALL calculate_all_parameters(bid_element_id);
+	COMMIT;
+END$$
+DELIMITER ;
+
+-- 16. Creating procedure that adds cutout to bid element
+
+
+/*
+EXAMPLE OF JSON FILE WITH 3 COUTOUTS:
+{
+	"cutouts": 
+		[
+			{"amount": 3, "dimensions": [0.30, 0.30, 0.30]},
+            {"amount": 2, "dimensions": [0.20, 0.20, 0.20]},
+            {"amount": 1, "dimensions": [0.10, 0.10, 0.10]}
+		]
+}
+
+EXAMPLE OF JSON FILE WITH 3 COUTOUTS AND 3 CONSOLES:
+
+{
+	"cutouts": 
+		[
+			{"amount": 3, "dimensions": [0.30, 0.30, 0.30]},
+            {"amount": 2, "dimensions": [0.20, 0.20, 0.20]},
+            {"amount": 1, "dimensions": [0.10, 0.10, 0.10]}
+		], 
+	"consoles": 
+		[
+			{"amount": 3, "dimensions": [0.30, 0.30, 0.30]},
+            {"amount": 2, "dimensions": [0.20, 0.20, 0.20]},
+            {"amount": 1, "dimensions": [0.10, 0.10, 0.10]}
+		]
+}
+*/
 
 DROP PROCEDURE IF EXISTS add_cutout_to_bid_element;
 
 DELIMITER $$
-CREATE PROCEDURE  add_cutout_to_bid_element 
+CREATE PROCEDURE add_cutout_to_bid_element 
 (
 	bid_element_id INT,
-    name VARCHAR(50),
     amount INT, 
     height DECIMAL (3,2), 
     width DECIMAL (3,2), 
@@ -495,36 +588,88 @@ BEGIN
         WHERE b.id = bid_element_id) 
         IS NULL
     THEN
-	START TRANSACTION;
-		UPDATE bidelements b
-		SET other_properties = JSON_OBJECT(
-			CONCAT('cutout_',name), JSON_OBJECT('amount', amount,
-								'height', height,
-								'width', width,
-								'length', length
-							)
-		)
-		WHERE b.id = bid_element_id;
+		START TRANSACTION;
+			UPDATE bidelements b
+			SET other_properties = JSON_OBJECT
+			(
+				'cutouts', JSON_ARRAY
+				(
+					JSON_OBJECT
+					(
+                        'amount', amount,
+						'dimensions', JSON_ARRAY(height, width, length)
+					)
+				)
+			)
+			WHERE b.id = bid_element_id;
 		
-		CALL calculate_all_parameters(bid_element_id);
-	COMMIT;
+			CALL calculate_all_parameters(bid_element_id);
+		COMMIT;
     ELSE
-    	START TRANSACTION;
-		UPDATE bidelements b
-		SET other_properties = JSON_SET(
-			other_properties,
-			CONCAT('$.cutout_',name), JSON_OBJECT(
+		IF (SELECT JSON_EXTRACT(other_properties, '$.cutouts')
+			FROM bidelements b
+			WHERE b.id = bid_element_id) IS NOT NULL
+        THEN
+			START TRANSACTION;
+				UPDATE bidelements b
+				SET other_properties = JSON_ARRAY_INSERT
+				(
+					other_properties,
+					'$.cutouts[0]', JSON_OBJECT
+						(
+							'amount', amount,                     
+							'dimensions', JSON_ARRAY(height, width, length)
+						)
+				)
+				WHERE b.id = bid_element_id;
+				
+				CALL calculate_all_parameters(bid_element_id);
+			COMMIT;
+		ELSE
+			START TRANSACTION;
+				UPDATE bidelements b
+				SET other_properties = JSON_SET
+				(
+					other_properties,
+					'$.cutouts', JSON_ARRAY
+						(
+							JSON_OBJECT
+							(
 								'amount', amount,
-								'height', height,
-								'width', width,
-								'length', length
+								'dimensions', JSON_ARRAY(height, width, length)
 							)
-		)
-		WHERE b.id = bid_element_id;
-		
-		CALL calculate_all_parameters(bid_element_id);
-	COMMIT;
-    END IF;
+						)
+				)
+				WHERE b.id = bid_element_id;
+				
+				CALL calculate_all_parameters(bid_element_id);
+			COMMIT;
+		END IF;
+	END IF;
 END$$
 DELIMITER ;
 
+-- 17. Creating procedure that removes cutouts from bid element
+
+DROP PROCEDURE IF EXISTS remove_cutout_from_bid_element;
+
+DELIMITER $$
+CREATE PROCEDURE remove_cutout_from_bid_element 
+(
+	bid_element_id INT,
+    number INT
+)
+BEGIN
+	START TRANSACTION;
+		UPDATE bidelements b
+		SET other_properties = JSON_REMOVE
+        (
+			other_properties,
+            CONCAT('$.cutouts[', number, ']')
+        )
+        WHERE b.id = bid_element_id;
+		
+        CALL calculate_all_parameters(bid_element_id);
+	COMMIT;
+END$$
+DELIMITER ;

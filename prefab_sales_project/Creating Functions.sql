@@ -467,3 +467,111 @@ BEGIN
     RETURN total_element_price;
 END$$
 DELIMITER ;
+
+-- 2. Calculate volume of consoles in bid element
+
+DROP FUNCTION IF EXISTS calculate_volume_of_consoles;
+
+DELIMITER $$
+CREATE FUNCTION calculate_volume_of_consoles(bid_element_id INT)
+RETURNS DECIMAL (9,2)
+READS SQL DATA
+BEGIN
+    DECLARE volume_of_consoles DECIMAL(9,2);
+    DECLARE amount INT;
+    DECLARE width DECIMAL(9,2);
+    DECLARE length DECIMAL(9,2);
+    DECLARE height DECIMAL(9,2);
+    DECLARE number_of_consoles INT;
+    DECLARE current_console INT;
+    
+    SELECT JSON_LENGTH (other_properties, "$.consoles") 
+    INTO number_of_consoles
+    FROM bidelements b 
+    WHERE b.id = bid_element_id;
+    
+    SET volume_of_consoles = 0;
+    SET current_console = 0;
+    
+    WHILE current_console < number_of_consoles DO
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.consoles[', current_console, '].amount'))
+        INTO amount
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.consoles[', current_console, '].dimensions[0]'))
+        INTO width
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.consoles[', current_console, '].dimensions[1]'))
+        INTO length
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.consoles[', current_console, '].dimensions[2]'))
+        INTO height
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+        SET volume_of_consoles = volume_of_consoles + amount * width * length * height;
+        
+        SET current_console = current_console + 1;
+	END WHILE;
+    RETURN volume_of_consoles;
+END$$
+DELIMITER ;
+
+-- 3. Calculate volume of cutouts in bid element
+
+DROP FUNCTION IF EXISTS calculate_volume_of_cutouts;
+
+DELIMITER $$
+CREATE FUNCTION calculate_volume_of_cutouts(bid_element_id INT)
+RETURNS DECIMAL (9,2)
+READS SQL DATA
+BEGIN
+    DECLARE volume_of_cutouts DECIMAL(9,2);
+    DECLARE amount INT;
+    DECLARE width DECIMAL(9,2);
+    DECLARE length DECIMAL(9,2);
+    DECLARE height DECIMAL(9,2);
+    DECLARE number_of_cutouts INT;
+    DECLARE current_cutouts INT;
+    
+    SELECT JSON_LENGTH (other_properties, "$.cutouts") 
+    INTO number_of_cutouts
+    FROM bidelements b 
+    WHERE b.id = bid_element_id;
+    
+    SET volume_of_cutouts = 0;
+    SET current_cutouts = 0;
+    
+    WHILE current_cutouts < number_of_cutouts DO
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.cutouts[', current_cutouts, '].amount'))
+        INTO amount
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.cutouts[', current_cutouts, '].dimensions[0]'))
+        INTO width
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.cutouts[', current_cutouts, '].dimensions[1]'))
+        INTO length
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+		SELECT JSON_EXTRACT(other_properties, CONCAT('$.cutouts[', current_cutouts, '].dimensions[2]'))
+        INTO height
+        FROM bidelements b
+        WHERE b.id = bid_element_id;
+        
+        SET volume_of_cutouts = volume_of_cutouts + amount * width * length * height;
+        
+        SET current_cutouts = current_cutouts + 1;
+	END WHILE;
+    RETURN volume_of_cutouts;
+END$$
+DELIMITER ;
