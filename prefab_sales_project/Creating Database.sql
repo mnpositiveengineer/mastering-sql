@@ -9,19 +9,29 @@ SET character_set_client = utf8mb4 ;
 
 -- creating tables
 
+DROP TABLE IF EXISTS addresses;
+
+CREATE TABLE Addresses (
+        id SERIAL PRIMARY KEY,
+        address VARCHAR(100) NOT NULL,
+        city VARCHAR(100) NOT NULL,
+        country VARCHAR(100) NOT NULL,
+        postalcode VARCHAR(50)
+    );
+
 DROP TABLE IF EXISTS Prospect;
 
 CREATE TABLE Prospect (
 	id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
     CHECK (name REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
-    address VARCHAR(255)
-    CHECK (address REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
-    country VARCHAR(100)
-    CHECK (country REGEXP '^[A-Z a-z]*$'),
+    address BIGINT UNSIGNED,
     principalActivity VARCHAR(100),
     tax VARCHAR(30)
-    CHECK (tax REGEXP '^[A-Z0-9]{1,26}$')
+    CHECK (tax REGEXP '^[A-Z0-9]{1,26}$'),
+    FOREIGN KEY (address) REFERENCES Addresses (id)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS PersonOfContact;
@@ -49,8 +59,7 @@ CREATE TABLE Project (
 	id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
     CHECK (name REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
-    location VARCHAR(100) NOT NULL
-    CHECK (location REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
+    address BIGINT UNSIGNED NOT NULL,
     typeOfConstruction VARCHAR(100)
     CHECK (typeOfConstruction REGEXP '^[A-Z a-z]*$'),
     investorType ENUM ('investor', 'general', 'subcontractor'),
@@ -60,7 +69,10 @@ CREATE TABLE Project (
     prospect BIGINT UNSIGNED,
     FOREIGN KEY (prospect) REFERENCES Prospect (id)
     ON UPDATE CASCADE
-    ON DELETE SET NULL
+    ON DELETE SET NULL,
+    FOREIGN KEY (address) REFERENCES Addresses (id)
+	ON DELETE RESTRICT
+    ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS SalesPerson;
