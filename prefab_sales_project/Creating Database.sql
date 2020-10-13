@@ -9,24 +9,24 @@ SET character_set_client = utf8mb4 ;
 
 -- creating tables
 
-DROP TABLE IF EXISTS addresses;
+DROP TABLE IF EXISTS Addresses;
 
 CREATE TABLE Addresses (
         id SERIAL PRIMARY KEY,
         address VARCHAR(100) NOT NULL,
         city VARCHAR(100) NOT NULL,
         country VARCHAR(100) NOT NULL,
-        postalcode VARCHAR(50)
+        postal_code VARCHAR(50)
     );
 
-DROP TABLE IF EXISTS Prospect;
+DROP TABLE IF EXISTS Prospects;
 
-CREATE TABLE Prospect (
+CREATE TABLE Prospects (
 	id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
     CHECK (name REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
     address BIGINT UNSIGNED,
-    principalActivity VARCHAR(100),
+    principal_activity VARCHAR(100),
     tax VARCHAR(30)
     CHECK (tax REGEXP '^[A-Z0-9]{1,26}$'),
     FOREIGN KEY (address) REFERENCES Addresses (id)
@@ -34,74 +34,117 @@ CREATE TABLE Prospect (
     ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS PersonOfContact;
+DROP TABLE IF EXISTS PersonOfContacts;
 
-CREATE TABLE PersonOfContact (
+CREATE TABLE PersonOfContacts (
 	id SERIAL PRIMARY KEY,
-    firstName VARCHAR(100) NOT NULL
-    CHECK (firstName REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
+    first_name VARCHAR(100) NOT NULL
+    CHECK (first_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
+	last_name VARCHAR(100) NOT NULL
+    CHECK (last_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
     email VARCHAR(100) NOT NULL
     CHECK (email LIKE '%_@__%.__%' OR email LIKE '%#@__%.__%'),
-    phoneNumber VARCHAR(20) NOT NULL
-    CHECK (phoneNumber REGEXP '^[0-9]*$'),
+    phone_number VARCHAR(20) NOT NULL
+    CHECK (phone_number REGEXP '^[0-9]*$'),
     position VARCHAR(50)
     CHECK (position REGEXP '^[A-Z a-z]*$'),
-    decisionMaker BOOLEAN,
-    prospect BIGINT UNSIGNED,
-    FOREIGN KEY (prospect) REFERENCES Prospect (id)
+    decision_maker BOOLEAN,
+    prospect_id BIGINT UNSIGNED,
+    FOREIGN KEY (prospect_id) REFERENCES Prospects (id)
     ON DELETE SET NULL
     ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS Project;
+DROP TABLE IF EXISTS client_types;
 
-CREATE TABLE Project (
+CREATE TABLE client_types (
+	id SERIAL PRIMARY KEY,
+    type VARCHAR(50)
+);
+
+DROP TABLE IF EXISTS project_types;
+
+CREATE TABLE project_types (
+	id SERIAL PRIMARY KEY,
+    type VARCHAR(50)
+);
+
+DROP TABLE IF EXISTS construction_types;
+
+CREATE TABLE construction_types (
+	id SERIAL PRIMARY KEY,
+    type VARCHAR(50)
+);
+
+DROP TABLE IF EXISTS project_statuses;
+
+CREATE TABLE project_statuses (
+	id SERIAL PRIMARY KEY,
+    status VARCHAR(50)
+);
+
+DROP TABLE IF EXISTS Projects;
+
+CREATE TABLE Projects (
 	id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
     CHECK (name REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
     address BIGINT UNSIGNED NOT NULL,
-    typeOfConstruction VARCHAR(100)
-    CHECK (typeOfConstruction REGEXP '^[A-Z a-z]*$'),
-    investorType ENUM ('investor', 'general', 'subcontractor'),
-    projectType ENUM ('delivery', 'assembly'),
-    containsDesign BOOLEAN,
-    projectStatus  ENUM ('in progress', 'offer sent', 'rejected', 'approved'),
-    prospect BIGINT UNSIGNED,
-    FOREIGN KEY (prospect) REFERENCES Prospect (id)
+    construction_type BIGINT UNSIGNED,
+    client_type BIGINT UNSIGNED,
+    project_type BIGINT UNSIGNED,
+    design BOOLEAN,
+    status BIGINT UNSIGNED,
+    prospect_id BIGINT UNSIGNED,
+    FOREIGN KEY (prospect_id) REFERENCES Prospects (id)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
     FOREIGN KEY (address) REFERENCES Addresses (id)
 	ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+	FOREIGN KEY (construction_type) REFERENCES construction_types (id)
+	ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+	FOREIGN KEY (client_type) REFERENCES client_types (id)
+	ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+	FOREIGN KEY (project_type) REFERENCES project_types (id)
+	ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+	FOREIGN KEY (status) REFERENCES project_statuses (id)
+	ON DELETE RESTRICT
     ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS SalesPerson;
+DROP TABLE IF EXISTS SalesPersons;
 
-CREATE TABLE SalesPerson (
+CREATE TABLE SalesPersons (
 	id SERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL
     CHECK (email LIKE '%_@__%.__%' OR email LIKE '%#@__%.__%'),
-	name VARCHAR(100) NOT NULL
-    CHECK (name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$')
+	first_name VARCHAR(100) NOT NULL
+    CHECK (first_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
+	last_name VARCHAR(100) NOT NULL,
+    CHECK (last_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$')
 );
 
-DROP TABLE IF EXISTS ProjectSalesPerson;
+DROP TABLE IF EXISTS ProjectsSalesPersons;
 
-CREATE TABLE ProjectSalesPerson (
+CREATE TABLE ProjectsSalesPersons (
 	sales_person_id BIGINT UNSIGNED NOT NULL,
-    project_id BIGINT UNSIGNED NOT NULL,
-    PRIMARY KEY (sales_person_id, project_id),
-    FOREIGN KEY (sales_person_id) REFERENCES SalesPerson(id)
+    Projects_id BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (sales_person_id, Projects_id),
+    FOREIGN KEY (sales_person_id) REFERENCES SalesPersons(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
-    FOREIGN KEY (project_id) REFERENCES Project(id)
+    FOREIGN KEY (Projects_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
 
-DROP TABLE IF EXISTS TypeOfElement;
+DROP TABLE IF EXISTS TypeOfElements;
 
-CREATE TABLE TypeOfElement (
+CREATE TABLE TypeOfElements (
 	id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 );
@@ -110,8 +153,8 @@ DROP TABLE IF EXISTS BidElements;
 
 CREATE TABLE BidElements (
 	id SERIAL PRIMARY KEY,
-    project_id BIGINT UNSIGNED,
-    typeOfElement_id BIGINT UNSIGNED NOT NULL,
+    Projects_id BIGINT UNSIGNED,
+    TypeOfElements_id BIGINT UNSIGNED NOT NULL,
     name VARCHAR(10) NOT NULL,
     amount INT UNSIGNED NOT NULL,
     height DECIMAL(9,2) UNSIGNED,
@@ -128,10 +171,10 @@ CREATE TABLE BidElements (
     assembly_start DATE,
     assembly_end DATE,
     other_properties JSON,
-    FOREIGN KEY (project_id) REFERENCES Project(id)
+    FOREIGN KEY (Projects_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
-    FOREIGN KEY (typeOfElement_id) REFERENCES TypeOfElement(id),
+    FOREIGN KEY (TypeOfElements_id) REFERENCES TypeOfElements(id),
 	CHECK (assembly_start <= assembly_end)
 );
 
@@ -162,7 +205,7 @@ CREATE TABLE AccessoriesBidElements(
 DROP TABLE IF EXISTS FinancialDetails;
 
 CREATE TABLE FinancialDetails(
-    project_id BIGINT UNSIGNED NOT NULL UNIQUE,
+    Projects_id BIGINT UNSIGNED NOT NULL UNIQUE,
     concrete_cost DECIMAL(9,2) UNSIGNED,
     steel_cost DECIMAL(9,2) UNSIGNED,
     tension_steel_cost DECIMAL(9,2) UNSIGNED,
@@ -173,7 +216,7 @@ CREATE TABLE FinancialDetails(
     transport_cost DECIMAL(9,2) UNSIGNED,
     assembly_cost DECIMAL(9,2) UNSIGNED,
     markup DECIMAL(2,2) UNSIGNED,
-    FOREIGN KEY (project_id) REFERENCES Project(id)
+    FOREIGN KEY (Projects_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
@@ -210,14 +253,14 @@ DROP TABLE IF EXISTS Offers;
 
 CREATE TABLE Offers (
 	id SERIAL PRIMARY KEY,
-    project_id BIGINT UNSIGNED NOT NULL,
+    Projects_id BIGINT UNSIGNED NOT NULL,
     total_production_cost DECIMAL(9,2) UNSIGNED,
     total_transport_cost DECIMAL(9,2) UNSIGNED,
     total_assembly_cost DECIMAL(9,2) UNSIGNED,
     total_cost DECIMAL(9,2) UNSIGNED,
     markup DECIMAL(2,2) UNSIGNED,
     total_price DECIMAL(9,2) UNSIGNED,
-	FOREIGN KEY (project_id) REFERENCES Project(id)
+	FOREIGN KEY (Projects_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );

@@ -1,29 +1,33 @@
 -- inserting dummy data
 -- generated with https://www.mockaroo.com/
 
-DELETE FROM Project;
-DELETE FROM SalesPerson;
-DELETE FROM Prospect;
+DELETE FROM Projects;
+DELETE FROM SalesPersons;
+DELETE FROM Prospects;
 DELETE FROM Addresses;
-DELETE FROM PersonOfContact;
-DELETE FROM projectsalesperson;
+DELETE FROM PersonOfContacts;
+DELETE FROM ProjectsSalesPersons;
 DELETE FROM BidElements;
-DELETE FROM TypeOfElement;
+DELETE FROM TypeOfElements;
 DELETE FROM Accessories;
 DELETE FROM AccessoriesBidElements;
+DELETE FROM client_types;
+DELETE FROM project_types;
+DELETE FROM construction_types;
+DELETE FROM project_statuses;
 
 
-INSERT INTO SalesPerson (id, email, name) VALUES 
-(1, 'hmcilvenny0@japanpost.jp', 'Hermie McIlvenny'),
-(2, 'gamsberger1@chron.com', 'Gus Amsberger'),
-(3, 'kgodthaab2@slideshare.net', 'Kale Godthaab'),
-(4, 'htumbelty3@engadget.com', 'Hazel Tumbelty'),
-(5, 'sprott4@ted.com', 'Selina Prott'),
-(6, 'edaouse5@qq.com', 'Edvard Daouse'),
-(7, 'bmcpaike6@msn.com', 'Babb McPaike'),
-(8, 'rnannoni7@baidu.com', 'Rubin Nannoni'),
-(9, 'jlarose8@eventbrite.com', 'Jakob Larose'),
-(10, 'streslove9@usgs.gov', 'Syd Treslove');
+INSERT INTO SalesPersons (id, email, first_name, last_name) VALUES 
+(1, 'hmcilvenny0@japanpost.jp', 'Hermie', 'McIlvenny'),
+(2, 'gamsberger1@chron.com', 'Gus', 'Amsberger'),
+(3, 'kgodthaab2@slideshare.net', 'Kale', 'Godthaab'),
+(4, 'htumbelty3@engadget.com', 'Hazel', 'Tumbelty'),
+(5, 'sprott4@ted.com', 'Selina', 'Prott'),
+(6, 'edaouse5@qq.com', 'Edvard', 'Daouse'),
+(7, 'bmcpaike6@msn.com', 'Babb', 'McPaike'),
+(8, 'rnannoni7@baidu.com', 'Rubin', 'Nannoni'),
+(9, 'jlarose8@eventbrite.com', 'Jakob', 'Larose'),
+(10, 'streslove9@usgs.gov', 'Syd', 'Treslove');
 
 INSERT INTO Addresses VALUES
 (1, '2618 Redwing Terrace', 'Paris 19', 'France', '75934 CEDEX 19'),
@@ -78,7 +82,7 @@ INSERT INTO Addresses VALUES
 (50, '22 Mitchell Point', 'Żyraków', 'Poland', '39-204');
 
 
-INSERT INTO Prospect VALUES
+INSERT INTO Prospects VALUES
 (1, 'Quinu', 1 , 'Investment Bankers/Brokers/Service', '9017777671'),
 (2, 'Thoughtblab', 2, 'Major Chemicals', '7884701920'),
 (3, 'Gabcube', 3, 'Major Banks', '9863234949'),
@@ -100,101 +104,131 @@ INSERT INTO Prospect VALUES
 (19, 'Kwideo', 19, 'Automotive Aftermarket', '4435937953'),
 (20, 'Realblab', 20, 'Major Banks', '6108552466');
 
-INSERT INTO PersonOfContact (id, firstName, email, phoneNumber, position, decisionMaker, prospect) VALUES
-(1,'Olwen Anstis', 'oanstis0@prlog.org', '4987121326', 'Accounting Assistant III', true, 20),
-(2, 'Hollie Tidball', 'htidball1@mediafire.com', '4738223157', 'Data Coordiator', true, 4),
-(3, 'Rosco Cadle', 'rcadle2@umn.edu', '7932623011', 'Financial Advisor', false, 11),
-(4, 'Johannah Chadney', 'jchadney3@utexas.edu', '2208682549', 'Financial Analyst', true, 15),
-(5, 'Gayelord Rings', 'grings4@shoppro.jp', '3131460239', 'Environmental Specialist', true, 3),
-(6, 'Filia Scourfield', 'fscourfield5@tinypic.com', '1158087298', 'Account Executive', false, 9),
-(7, 'Burton Curl', 'bcurl6@desdev.cn', '2382444603', 'Structural Engineer', true, 20),
-(8, 'Britte Levington', 'blevington7@alexa.com', '3002833508', 'Tax Accountant', true, 16),
-(9, 'Nicola Petronis', 'npetronis8@privacy.gov.au', '3265797672', 'Dental Hygienist', true, 13),
-(10, 'Madonna Redley', 'mredley9@trellian.com', '9229199083', 'Senior Developer', false, 18),
-(11, 'Ches Lettsom', 'clettsoma@cornell.edu', '1075276979', 'Research Nurse', true, 13),
-(12, 'Auroora Quinn', 'aquinnb@webnode.com', '3552315144', 'Assistant Media Planner', false, 17),
-(13, 'Antonie Hallihan', 'ahallihanc@spotify.com', '2621068632', 'Systems Administrator III', true, 1),
-(14, 'Alex Schollar', 'aschollard@thetimes.co.uk', '5552503774', 'Information Systems Manager', false, 8),
-(15, 'Arlyne Beaton', 'abeatone@java.com', '5624411152', 'Electrical Engineer', false, 12),
-(16, 'Padgett Pappin', 'ppappinf@wunderground.com', '9299598715', 'Financial Advisor', true, 17),
-(17, 'Robin Elener', 'relenerg@xing.com', '7078755730', 'Web Designer IV', true, 3),
-(18, 'Derk Blayd', 'dblaydh@amazonaws.com', '9774820480', 'Recruiter', true, 20),
-(19, 'Theo Bartles', 'tbartlesi@google.co.uk', '4077209719', 'Human Resources Manager', false, 20),
-(20, 'Annetta Red', 'aredj@phoca.cz', '3474839295', 'Actuary', true, 19),
-(21, 'Edi Bleasdille', 'ebleasdillek@wikipedia.org', '5545215890', 'Food Chemist', true, 7),
-(22, 'Brandy Straneo', 'bstraneol@arizona.edu', '7975385259', 'Geologist II', true, 20),
-(23, 'Napoleon Roxburch', 'nroxburchm@paginegialle.it', '3797123059', 'Software Test Engineer IV', true, 8),
-(24, 'Colan Klee', 'ckleen@berkeley.edu', '1613918316', 'Cost Accountant', false, 15),
-(25, 'Francyne Destouche', 'fdestoucheo@statcounter.com', '1523246796', 'Research Nurse', true, 15),
-(26, 'Horace Cashley', 'hcashleyp@ustream.tv', '1213011658', 'Geological Engineer', true, 10),
-(27, 'Frayda Lanceley', 'flanceleyq@weibo.com', '2511630766', 'Software Test Engineer I', true, 9),
-(28, 'Constantina Joblin', 'cjoblinr@feedburner.com', '7014571717', 'Staff Accountant II', true, 13),
-(29, 'Nady Boylund', 'nboylunds@freewebs.com', '1404015540', 'Director of Sales', true, 9),
-(30, 'Norene Belt', 'nbeltt@a8.net', '4556764256', 'Developer II', false, 12),
-(31, 'Broddy Richley', 'brichleyu@bing.com', '1865443609', 'Occupational Therapist', true, 19),
-(32,'Codi Mathevon', 'cmathevonv@bing.com', '3032298043', 'Research Assistant IV', true, 20),
-(33, 'Terrill Benedicto', 'tbenedictow@opensource.org', '9639785654', 'VP Product Management', false, 15),
-(34, 'Brigid Rea', 'breax@miitbeian.gov.cn', '7998549769', 'Account Representative III', false, 10),
-(35, 'Cynde Towndrow', 'ctowndrowy@aol.com', '6676474379', 'Internal Auditor', true, 13),
-(36, 'Dareen Mancktelow', 'dmancktelowz@arstechnica.com', '3632624673', 'Electrical Engineer', true, 12),
-(37, 'Caprice Eusden', 'ceusden10@accuweather.com', '8821811760', 'Internal Auditor', true, 3),
-(38, 'Kaja Bunclark', 'kbunclark11@omniture.com', '1967680723', 'Information Systems Manager', true, 3),
-(39, 'Helli Nutbeem', 'hnutbeem12@msn.com', '7094850058', 'Assistant Professor', true, 8),
-(40, 'Cordell Whatson', 'cwhatson13@fema.gov', '8617948023', 'Assistant Manager', true, 3),
-(41, 'Odette Gregorio', 'ogregorio14@usa.gov', '1873804967', 'Senior Financial Analyst', false, 16),
-(42, 'Kinnie Janicijevic', 'kjanicijevic15@scribd.com', '3459371275', 'Senior Sales Associate', true, 1),
-(43, 'Llywellyn Crusham', 'lcrusham16@stanford.edu', '1014974638', 'Human Resources Assistant II', true, 1),
-(44, 'Catha Wimmers', 'cwimmers17@jalbum.net', '5183112428', 'Chief Design Engineer', false, 11),
-(45, 'Beltran Arrandale', 'barrandale18@sina.com.cn', '6289431409', 'Food Chemist', false, 12),
-(46, 'Baxter Chatband', 'bchatband19@howstuffworks.com', '8686283549', 'Quality Control Specialist', false, 12),
-(47, 'Jordain Walstow', 'jwalstow1a@last.fm', '5121681644', 'Statistician II', true, 15),
-(48, 'Gunner Burstow', 'gburstow1b@artisteer.com', '4936910820', 'Help Desk Operator', false, 19),
-(49, 'Darb Vasilchikov', 'dvasilchikov1c@blinklist.com', '4956721742', 'Analog Circuit Design manager', false, 9),
-(50, 'Paolo Wiggett', 'pwiggett1d@linkedin.com', '1938979871', 'Biostatistician II', true, 8);
+INSERT INTO PersonOfContacts (id, first_name, last_name, email, phone_number, position, decision_maker, prospect_id) VALUES
+(1,'Olwen', 'Anstis', 'oanstis0@prlog.org', '4987121326', 'Accounting Assistant III', true, 20),
+(2, 'Hollie', 'Tidball', 'htidball1@mediafire.com', '4738223157', 'Data Coordiator', true, 4),
+(3, 'Rosco', 'Cadle', 'rcadle2@umn.edu', '7932623011', 'Financial Advisor', false, 11),
+(4, 'Johannah', 'Chadney', 'jchadney3@utexas.edu', '2208682549', 'Financial Analyst', true, 15),
+(5, 'Gayelord', 'Rings', 'grings4@shoppro.jp', '3131460239', 'Environmental Specialist', true, 3),
+(6, 'Filia', 'Scourfield', 'fscourfield5@tinypic.com', '1158087298', 'Account Executive', false, 9),
+(7, 'Burton', 'Curl', 'bcurl6@desdev.cn', '2382444603', 'Structural Engineer', true, 20),
+(8, 'Britte', 'Levington', 'blevington7@alexa.com', '3002833508', 'Tax Accountant', true, 16),
+(9, 'Nicola', 'Petronis', 'npetronis8@privacy.gov.au', '3265797672', 'Dental Hygienist', true, 13),
+(10, 'Madonna', 'Redley', 'mredley9@trellian.com', '9229199083', 'Senior Developer', false, 18),
+(11, 'Ches', 'Lettsom', 'clettsoma@cornell.edu', '1075276979', 'Research Nurse', true, 13),
+(12, 'Auroora', 'Quinn', 'aquinnb@webnode.com', '3552315144', 'Assistant Media Planner', false, 17),
+(13, 'Antonie', 'Hallihan', 'ahallihanc@spotify.com', '2621068632', 'Systems Administrator III', true, 1),
+(14, 'Alex', 'Schollar', 'aschollard@thetimes.co.uk', '5552503774', 'Information Systems Manager', false, 8),
+(15, 'Arlyne', 'Beaton', 'abeatone@java.com', '5624411152', 'Electrical Engineer', false, 12),
+(16, 'Padgett', 'Pappin', 'ppappinf@wunderground.com', '9299598715', 'Financial Advisor', true, 17),
+(17, 'Robin', 'Elener', 'relenerg@xing.com', '7078755730', 'Web Designer IV', true, 3),
+(18, 'Derk', 'Blayd', 'dblaydh@amazonaws.com', '9774820480', 'Recruiter', true, 20),
+(19, 'Theo', 'Bartles', 'tbartlesi@google.co.uk', '4077209719', 'Human Resources Manager', false, 20),
+(20, 'Annetta', 'Red', 'aredj@phoca.cz', '3474839295', 'Actuary', true, 19),
+(21, 'Edi', 'Bleasdille', 'ebleasdillek@wikipedia.org', '5545215890', 'Food Chemist', true, 7),
+(22, 'Brandy', 'Straneo', 'bstraneol@arizona.edu', '7975385259', 'Geologist II', true, 20),
+(23, 'Napoleon', 'Roxburch', 'nroxburchm@paginegialle.it', '3797123059', 'Software Test Engineer IV', true, 8),
+(24, 'Colan', 'Klee', 'ckleen@berkeley.edu', '1613918316', 'Cost Accountant', false, 15),
+(25, 'Francyne', 'Destouche', 'fdestoucheo@statcounter.com', '1523246796', 'Research Nurse', true, 15),
+(26, 'Horace', 'Cashley', 'hcashleyp@ustream.tv', '1213011658', 'Geological Engineer', true, 10),
+(27, 'Frayda', 'Lanceley', 'flanceleyq@weibo.com', '2511630766', 'Software Test Engineer I', true, 9),
+(28, 'Constantina', 'Joblin', 'cjoblinr@feedburner.com', '7014571717', 'Staff Accountant II', true, 13),
+(29, 'Nady', 'Boylund', 'nboylunds@freewebs.com', '1404015540', 'Director of Sales', true, 9),
+(30, 'Norene', 'Belt', 'nbeltt@a8.net', '4556764256', 'Developer II', false, 12),
+(31, 'Broddy', 'Richley', 'brichleyu@bing.com', '1865443609', 'Occupational Therapist', true, 19),
+(32,'Codi', 'Mathevon', 'cmathevonv@bing.com', '3032298043', 'Research Assistant IV', true, 20),
+(33, 'Terrill', 'Benedicto', 'tbenedictow@opensource.org', '9639785654', 'VP Product Management', false, 15),
+(34, 'Brigid', 'Rea', 'breax@miitbeian.gov.cn', '7998549769', 'Account Representative III', false, 10),
+(35, 'Cynde', 'Towndrow', 'ctowndrowy@aol.com', '6676474379', 'Internal Auditor', true, 13),
+(36, 'Dareen', 'Mancktelow', 'dmancktelowz@arstechnica.com', '3632624673', 'Electrical Engineer', true, 12),
+(37, 'Caprice', 'Eusden', 'ceusden10@accuweather.com', '8821811760', 'Internal Auditor', true, 3),
+(38, 'Kaja', 'Bunclark', 'kbunclark11@omniture.com', '1967680723', 'Information Systems Manager', true, 3),
+(39, 'Helli', 'Nutbeem', 'hnutbeem12@msn.com', '7094850058', 'Assistant Professor', true, 8),
+(40, 'Cordell', 'Whatson', 'cwhatson13@fema.gov', '8617948023', 'Assistant Manager', true, 3),
+(41, 'Odette', 'Gregorio', 'ogregorio14@usa.gov', '1873804967', 'Senior Financial Analyst', false, 16),
+(42, 'Kinnie', 'Janicijevic', 'kjanicijevic15@scribd.com', '3459371275', 'Senior Sales Associate', true, 1),
+(43, 'Llywellyn', 'Crusham', 'lcrusham16@stanford.edu', '1014974638', 'Human Resources Assistant II', true, 1),
+(44, 'Catha', 'Wimmers', 'cwimmers17@jalbum.net', '5183112428', 'Chief Design Engineer', false, 11),
+(45, 'Beltran', 'Arrandale', 'barrandale18@sina.com.cn', '6289431409', 'Food Chemist', false, 12),
+(46, 'Baxter', 'Chatband', 'bchatband19@howstuffworks.com', '8686283549', 'Quality Control Specialist', false, 12),
+(47, 'Jordain', 'Walstow', 'jwalstow1a@last.fm', '5121681644', 'Statistician II', true, 15),
+(48, 'Gunner', 'Burstow', 'gburstow1b@artisteer.com', '4936910820', 'Help Desk Operator', false, 19),
+(49, 'Darb', 'Vasilchikov', 'dvasilchikov1c@blinklist.com', '4956721742', 'Analog Circuit Design manager', false, 9),
+(50, 'Paolo', 'Wiggett', 'pwiggett1d@linkedin.com', '1938979871', 'Biostatistician II', true, 8);
 
-INSERT INTO Project (id, name, address, typeOfConstruction, investorType, projectType, containsDesign, projectStatus, prospect) VALUES
-(1, 'Kling, Schoen and Swaniawski', 21, "warehouse", "investor", "delivery", false, "in progress", 8), 
-(2, 'HarveyCarter', 22, "infrastructure", 'general', "delivery", true, "in progress", 8),
-(3, 'Hane and Sons', 23, "house", 'general', "delivery", true, null, 11),
-(4, 'Feeney and Sons', 24, "warehouse", 'subcontractor', null, false, "in progress", 2),
-(5, 'Greenfelder, Cummings and Murphy', 25, "factory", 'subcontractor', null, true, "in progress", 4),
-(6, 'ErdmanMacejkovic', 26, "bridge", 'subcontractor', 'assembly', true, null, 6),
-(7, 'Murray, Dicki and Cronin', 27, "infrastructure", "investor", null, true, "in progress", 18),
-(8, 'HeidenreichUpton', 28, "warehouse", 'general', null, true, "in progress", 9),
-(9, 'McLaughlinQuitzon', 29, "house", null, null, false, "in progress", 18),
-(10, 'KuhlmanRoob', 30, "factory", 'subcontractor', 'assembly', false, "in progress", 3),
-(11, 'Erdman and Sons', 31, "bridge", 'general', 'assembly', true, "in progress", 16),
-(12, 'Dibbert and Sons', 32, "factory", null, 'assembly', true, "in progress", 11),
-(13, 'ErdmanNikolaus', 33, "warehouse", 'subcontractor', 'assembly', false, "in progress", 8),
-(14, 'Gibson, Roberts and Armstrong', 34, null, null, "delivery", false, "in progress", 6),
-(15, 'Monahan, Windler and Tillman', 35, null, 'general', null, false, null, 9),
-(16, 'Adams, DuBuque and Wunsch', 36, "stadion", "investor", "delivery", false, null, 3),
-(17, 'Rosenbaum Group', 37, "warehouse", null, null, false, null, 4),
-(18, 'Carter, Mertz and Satterfield', 38, "bridge", null, null, false, null, 5),
-(19, 'Goldner LLC', 39, "house", null, 'assembly', true, null, 14),
-(20, 'ArmstrongStehr', 40, "stadion", 'general', 'assembly', true, "in progress", 6),
-(21, 'Heidenreich, Nienow and Kuhn', 41, null, 'subcontractor', "delivery", true, "in progress", 11),
-(22, 'Ortiz, Bogan and Murazik', 42, "warehouse", "investor", null, true, null, 7),
-(23, 'Balistreri LLC', 43, null, 'general', null, true, null, 4),
-(24, 'Bosco and Sons', 44, "house", 'general', null, true, "in progress", 12),
-(25, 'PollichStanton', 45, "stadion", 'subcontractor', "delivery", false, "in progress", 17),
-(26, 'MurphyOrtiz', 46, "tunnel", null, 'assembly', false, "in progress", 13),
-(27, 'Langworth, Mohr and Waters', 47, null, 'subcontractor', null, false, "in progress", 14),
-(28, 'WilkinsonSchneider', 48, "warehouse", null, 'assembly', false, "in progress", 3),
-(29, 'KlingBarton', 49, "tunnel", 'general', "delivery", true, "in progress", 11),
-(30, 'RuntePadberg', 50, "house", "investor", "delivery", false, "in progress", 18);
+INSERT INTO client_types
+VALUES 
+(1, 'investor'),
+(2, 'general'),
+(3, 'subcontractor');
 
-UPDATE projectsalesperson SET sales_person_id = 2 WHERE project_id IN (4,5,6);
-UPDATE projectsalesperson SET sales_person_id = 3 WHERE project_id IN (7,8,9);
-UPDATE projectsalesperson SET sales_person_id = 4 WHERE project_id IN (10,11,12);
-UPDATE projectsalesperson SET sales_person_id = 5 WHERE project_id IN (13,14,15);
-UPDATE projectsalesperson SET sales_person_id = 6 WHERE project_id IN (16,7,18);
-UPDATE projectsalesperson SET sales_person_id = 7 WHERE project_id IN (19,20,21);
-UPDATE projectsalesperson SET sales_person_id = 8 WHERE project_id IN (22,23,24);
-UPDATE projectsalesperson SET sales_person_id = 9 WHERE project_id IN (25,26,27);
-UPDATE projectsalesperson SET sales_person_id = 10 WHERE project_id IN (28,29,30);
+INSERT INTO project_types
+VALUES 
+(1, 'assembly'),
+(2, 'delivery');
 
-INSERT INTO TypeOfElement (id, name)
+INSERT INTO construction_types
+VALUES 
+(1, 'warehouse'),
+(2, 'infrastructure'),
+(3, 'house'),
+(4, 'infrastructure'),
+(5, 'factory'),
+(6, 'bridge'),
+(7, 'stadion'),
+(8, 'tunnel');
+
+INSERT INTO project_statuses
+VALUES 
+(1, 'received'),
+(2, 'in progress'),
+(3, 'offer sent'),
+(4, 'rejected'),
+(5, 'approved');
+
+INSERT INTO Projects (id, name, address, construction_type, client_type, project_type, design, status, prospect_id) VALUES
+(1, 'Trantow, Padberg and Bruen', 29, 4, 1, 1, true, 5, 7),
+(2, 'Schmidt Group', 40, 6, 1, 1, true, 3, 4),
+(3, 'Tremblay-Herzog', 28, 3, 3, 1, false, 3, 17),
+(4, 'Mitchell-Ward', 32, 7, 2, 1, false, 2, 13),
+(5, 'Langworth-Nienow', 50, 6, 2, 2, true, 2, 16),
+(6, 'Lakin Group', 37, 3, 3, 2, true, 2, 5),
+(7, 'Bogisich LLC', 45, 2, 1, 2, false, 2, 15),
+(8, 'Roberts and Sons', 23, 3, 3, 1, false, 3, 16),
+(9, 'Kuhlman, Hammes and Marvin', 48, 8, 2, 2, true, 4, 7),
+(10, 'Streich-Corwin', 40, 5, 3, 2, true, 5, 18),
+(11, 'Satterfield Group', 44, 8, 2, 1, true, 1, 10),
+(12, 'Heidenreich, Abbott and Ryan', 29, 1, 3, 2, true, 2, 18),
+(13, 'Turner, Bode and Johnston', 39, 8, 2, 2, false, 4, 19),
+(14, 'Klein LLC', 21, 8, 2, 1, false, 2, 2),
+(15, 'Strosin Group', 25, 1, 1, 1, false, 3, 10),
+(16, 'Reichel LLC', 48, 8, 2, 2, true, 1, 10),
+(17, 'Hauck Inc', 47, 4, 3, 1, true, 2, 6),
+(18, 'Harvey, Bergnaum and Schumm', 44, 7, 3, 2, false, 2, 6),
+(19, 'Greenfelder, Ward and Windler', 38, 8, 1, 2, true, 2, 6),
+(20, 'Beer Inc', 32, 6, 1, 2, false, 3, 7),
+(21, 'Hane-Kertzmann', 21, 4, 3, 1, true, 2, 11),
+(22, 'Rath, Dicki and Pouros', 32, 6, 3, 1, true, 1, 13),
+(23, 'Graham-Ratke', 49, 3, 2, 2, false, 2, 3),
+(24, 'Fay Inc', 48, 6, 3, 1, false, 2, 17),
+(25, 'Kutch and Sons', 39, 6, 2, 1, true, 5, 3),
+(26, 'Reichert-Mann', 37, 5, 3, 2, true, 1, 14),
+(27, 'Lindgren-Brekke', 50, 6, 1, 1, true, 5, 2),
+(28, 'Ratke-Marvin', 33, 5, 2, 1, true, 4, 2),
+(29, 'Feil-Greenholt', 31, 8, 1, 2, false, 2, 15),
+(30, 'Paucek Group', 45, 1, 3, 1, true, 4, 14);
+
+UPDATE ProjectsSalesPersons SET sales_person_id = 2 WHERE Projects_id IN (4,5,6);
+UPDATE ProjectsSalesPersons SET sales_person_id = 3 WHERE Projects_id IN (7,8,9);
+UPDATE ProjectsSalesPersons SET sales_person_id = 4 WHERE Projects_id IN (10,11,12);
+UPDATE ProjectsSalesPersons SET sales_person_id = 5 WHERE Projects_id IN (13,14,15);
+UPDATE ProjectsSalesPersons SET sales_person_id = 6 WHERE Projects_id IN (16,7,18);
+UPDATE ProjectsSalesPersons SET sales_person_id = 7 WHERE Projects_id IN (19,20,21);
+UPDATE ProjectsSalesPersons SET sales_person_id = 8 WHERE Projects_id IN (22,23,24);
+UPDATE ProjectsSalesPersons SET sales_person_id = 9 WHERE Projects_id IN (25,26,27);
+UPDATE ProjectsSalesPersons SET sales_person_id = 10 WHERE Projects_id IN (28,29,30);
+
+INSERT INTO TypeOfElements (id, name)
 VALUES
 (1, "column"),
 (2, "beam"),
@@ -212,7 +246,7 @@ VALUES
 (14, "T24"),
 (15, "T27");
 
-INSERT INTO BidElements (id, project_id, typeOfElement_id, name, amount, height, width, length, steel_saturation, tension_steel_saturation) VALUES
+INSERT INTO BidElements (id, Projects_id, TypeOfElements_id, name, amount, height, width, length, steel_saturation, tension_steel_saturation) VALUES
 (1, 2, 1, 'W56', 20, 0.09, 0.58, 9.63, 137, 23),
 (2, 24, 4, 'T97', 8, 0.76, 0.93, 2.57, 134, 65),
 (3, 4, 6, 'V56', 6, 0.13, 0.7, 6.03, 76, 26),

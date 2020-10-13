@@ -163,12 +163,12 @@ BEGIN
 END$$
 DELIMITER ;
 
--- 8. Creating procedure that retrieve all bid elements which belong to selected project
+-- 8. Creating procedure that retrieve all bid elements which belong to selected Projects
 
-DROP PROCEDURE IF EXISTS select_all_bid_elements_in_project;
+DROP PROCEDURE IF EXISTS select_all_bid_elements_in_Projects;
 
 DELIMITER $$
-CREATE PROCEDURE select_all_bid_elements_in_project (project_id INT)
+CREATE PROCEDURE select_all_bid_elements_in_Projects (Projects_id INT)
 BEGIN
 	SELECT
 		b.name,
@@ -188,19 +188,19 @@ BEGIN
         assembly_start,
         assembly_end
 	FROM bidelements b 
-    JOIN typeofelement t
-    ON b.typeOfElement_id = t.id
-    WHERE b.project_id = project_id
+    JOIN TypeOfElements t
+    ON b.TypeOfElements_id = t.id
+    WHERE b.Projects_id = Projects_id
     ORDER BY type;
 END$$
 DELIMITER ;
 
--- 9. Creating Procedure that calculates all parameters in every bid elements in selected project
+-- 9. Creating Procedure that calculates all parameters in every bid elements in selected Projects
 
-DROP PROCEDURE IF EXISTS calculate_all_parameters_in_selected_project;
+DROP PROCEDURE IF EXISTS calculate_all_parameters_in_selected_Projects;
 
 DELIMITER $$
-CREATE PROCEDURE calculate_all_parameters_in_selected_project(project_id INT)
+CREATE PROCEDURE calculate_all_parameters_in_selected_Projects(Projects_id INT)
 BEGIN
 	DECLARE number_of_rows INT DEFAULT 0;
     DECLARE current_row INT DEFAULT 0;
@@ -208,13 +208,13 @@ BEGIN
     
     SELECT count(*)
     INTO number_of_rows
-    FROM (SELECT b.id FROM bidelements b WHERE b.project_id = project_id) a;
+    FROM (SELECT b.id FROM bidelements b WHERE b.Projects_id = Projects_id) a;
     
     SET current_row = 0;
     
     WHILE current_row < number_of_rows DO
     SELECT a.id INTO current_id 
-    FROM (SELECT b.id FROM bidelements b WHERE b.project_id = project_id) a
+    FROM (SELECT b.id FROM bidelements b WHERE b.Projects_id = Projects_id) a
     LIMIT current_row,1;
     
     CALL calculate_all_parameters(current_id);
@@ -224,12 +224,12 @@ BEGIN
 END$$
 DELIMITER ;
 
--- 10. Creating procedure to set assembly_start and assembly_end of project
+-- 10. Creating procedure to set assembly_start and assembly_end of Projects
 
-DROP PROCEDURE IF EXISTS assign_date_of_project;
+DROP PROCEDURE IF EXISTS assign_date_of_Projects;
 
 DELIMITER $$
-CREATE PROCEDURE assign_date_of_project(project_id INT , assembly_start DATE, assembly_end DATE)
+CREATE PROCEDURE assign_date_of_Projects(Projects_id INT , assembly_start DATE, assembly_end DATE)
 BEGIN
 	IF assembly_start > assembly_end THEN
 		SIGNAL SQLSTATE '22003'
@@ -237,19 +237,19 @@ BEGIN
     ELSE
 		UPDATE bidelements b
         SET b.assembly_start = assembly_start, b.assembly_end = assembly_end
-        WHERE b.project_id = project_id;
+        WHERE b.Projects_id = Projects_id;
     END IF;
 END$$
 DELIMITER ;
 
--- 11. Create procedure that assign_financial_details_to_project
+-- 11. Create procedure that assign_financial_details_to_Projects
 
-DROP PROCEDURE IF EXISTS assign_financial_details_to_project;
+DROP PROCEDURE IF EXISTS assign_financial_details_to_Projects;
 
 DELIMITER $$
-CREATE PROCEDURE assign_financial_details_to_project
+CREATE PROCEDURE assign_financial_details_to_Projects
 (
-	project_id INT,
+	Projects_id INT,
 	concrete_cost DECIMAL(9,2),
 	steel_cost DECIMAL(9,2),
     tension_steel_cost DECIMAL(9,2),
@@ -264,7 +264,7 @@ CREATE PROCEDURE assign_financial_details_to_project
 BEGIN
 	INSERT INTO financialdetails 
     (
-		project_id,
+		Projects_id,
 		concrete_cost,
 		steel_cost,
 		tension_steel_cost,
@@ -278,7 +278,7 @@ BEGIN
     ) 
     VALUES
     (	
-    	project_id,
+    	Projects_id,
 		concrete_cost,
 		steel_cost,
 		tension_steel_cost,
@@ -293,18 +293,18 @@ BEGIN
 END$$
 DELIMITER ;
 
--- 12. Creating procedure that calculates prices of all bid elements in selected project
+-- 12. Creating procedure that calculates prices of all bid elements in selected Projects
 
-DROP PROCEDURE IF EXISTS calculated_all_prices_of_bid_elements_in_seleced_project;
+DROP PROCEDURE IF EXISTS calculated_all_prices_of_bid_elements_in_seleced_Projects;
 
 DELIMITER $$
-CREATE PROCEDURE calculated_all_prices_of_bid_elements_in_seleced_project(project_id INT)
+CREATE PROCEDURE calculated_all_prices_of_bid_elements_in_seleced_Projects(Projects_id INT)
 BEGIN
     IF 
-    NOT EXISTS (SELECT * FROM financialdetails fd WHERE fd.project_id = project_id)
+    NOT EXISTS (SELECT * FROM financialdetails fd WHERE fd.Projects_id = Projects_id)
     THEN
 	SIGNAL SQLSTATE '22003'
-	SET MESSAGE_TEXT = "No financial details assign to the project. Assign financial details first";
+	SET MESSAGE_TEXT = "No financial details assign to the Projects. Assign financial details first";
     ELSE
 		BEGIN
 		DECLARE number_of_bid_elements INT;
@@ -314,7 +314,7 @@ BEGIN
         SELECT count(*)
         INTO number_of_bid_elements
         FROM bidelements b
-        WHERE b.project_id = project_id;
+        WHERE b.Projects_id = Projects_id;
         
         SET current_row = 0;
         
@@ -323,7 +323,7 @@ BEGIN
         SELECT b.id
         INTO current_bid_element_id
         FROM bidelements b
-        WHERE b.project_id = project_id
+        WHERE b.Projects_id = Projects_id
         LIMIT current_row,1;
         
         DELETE FROM pricesofbidelements pb
