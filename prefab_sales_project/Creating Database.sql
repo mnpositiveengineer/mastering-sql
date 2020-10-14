@@ -12,20 +12,20 @@ SET character_set_client = utf8mb4 ;
 DROP TABLE IF EXISTS Addresses;
 
 CREATE TABLE Addresses (
-        id SERIAL PRIMARY KEY,
-        address VARCHAR(100) NOT NULL,
-        city VARCHAR(100) NOT NULL,
-        country VARCHAR(100) NOT NULL,
+        id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+        address VARCHAR(255) NOT NULL,
+        city VARCHAR(50) NOT NULL,
+        country VARCHAR(50) NOT NULL,
         postal_code VARCHAR(50)
     );
 
 DROP TABLE IF EXISTS Prospects;
 
 CREATE TABLE Prospects (
-	id SERIAL PRIMARY KEY,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
     name VARCHAR(100) NOT NULL
     CHECK (name REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
-    address BIGINT UNSIGNED,
+    address INT UNSIGNED,
     principal_activity VARCHAR(100),
     tax VARCHAR(30)
     CHECK (tax REGEXP '^[A-Z0-9]{1,26}$'),
@@ -37,19 +37,19 @@ CREATE TABLE Prospects (
 DROP TABLE IF EXISTS PersonOfContacts;
 
 CREATE TABLE PersonOfContacts (
-	id SERIAL PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL
     CHECK (first_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
-	last_name VARCHAR(100) NOT NULL
+	last_name VARCHAR(50) NOT NULL
     CHECK (last_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
-    email VARCHAR(100) NOT NULL
+    email VARCHAR(255) NOT NULL
     CHECK (email LIKE '%_@__%.__%' OR email LIKE '%#@__%.__%'),
-    phone_number VARCHAR(20) NOT NULL
+    phone_number VARCHAR(50) NOT NULL
     CHECK (phone_number REGEXP '^[0-9]*$'),
     position VARCHAR(50)
     CHECK (position REGEXP '^[A-Z a-z]*$'),
     decision_maker BOOLEAN,
-    prospect_id BIGINT UNSIGNED,
+    prospect_id INT UNSIGNED,
     FOREIGN KEY (prospect_id) REFERENCES Prospects (id)
     ON DELETE SET NULL
     ON UPDATE CASCADE
@@ -58,44 +58,44 @@ CREATE TABLE PersonOfContacts (
 DROP TABLE IF EXISTS client_types;
 
 CREATE TABLE client_types (
-	id SERIAL PRIMARY KEY,
+	id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
     type VARCHAR(50)
 );
 
 DROP TABLE IF EXISTS project_types;
 
 CREATE TABLE project_types (
-	id SERIAL PRIMARY KEY,
+	id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
     type VARCHAR(50)
 );
 
 DROP TABLE IF EXISTS construction_types;
 
 CREATE TABLE construction_types (
-	id SERIAL PRIMARY KEY,
+	id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
     type VARCHAR(50)
 );
 
 DROP TABLE IF EXISTS project_statuses;
 
 CREATE TABLE project_statuses (
-	id SERIAL PRIMARY KEY,
+	id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
     status VARCHAR(50)
 );
 
 DROP TABLE IF EXISTS Projects;
 
 CREATE TABLE Projects (
-	id SERIAL PRIMARY KEY,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
     name VARCHAR(100) NOT NULL
     CHECK (name REGEXP '^[A-Za-z0-9 ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß/,\.\'\-]*$'),
-    address BIGINT UNSIGNED NOT NULL,
-    construction_type BIGINT UNSIGNED,
-    client_type BIGINT UNSIGNED,
-    project_type BIGINT UNSIGNED,
+    address INT UNSIGNED NOT NULL,
+    construction_type TINYINT UNSIGNED,
+    client_type TINYINT UNSIGNED,
+    project_type TINYINT UNSIGNED,
     design BOOLEAN,
-    status BIGINT UNSIGNED,
-    prospect_id BIGINT UNSIGNED,
+    status TINYINT UNSIGNED,
+    prospect_id INT UNSIGNED,
     FOREIGN KEY (prospect_id) REFERENCES Prospects (id)
     ON UPDATE CASCADE
     ON DELETE SET NULL,
@@ -119,20 +119,20 @@ CREATE TABLE Projects (
 DROP TABLE IF EXISTS SalesPersons;
 
 CREATE TABLE SalesPersons (
-	id SERIAL PRIMARY KEY,
-    email VARCHAR(100) NOT NULL
+	id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+    email VARCHAR(255) NOT NULL
     CHECK (email LIKE '%_@__%.__%' OR email LIKE '%#@__%.__%'),
-	first_name VARCHAR(100) NOT NULL
+	first_name VARCHAR(50) NOT NULL
     CHECK (first_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$'),
-	last_name VARCHAR(100) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
     CHECK (last_name REGEXP '^[A-Za-z ąĄćĆęĘłŁńŃóÓśŚźŹżŻåÅØøæÆäÄöÖüÜß\.\'\-]*$')
 );
 
 DROP TABLE IF EXISTS ProjectsSalesPersons;
 
 CREATE TABLE ProjectsSalesPersons (
-	sales_person_id BIGINT UNSIGNED NOT NULL,
-    Projects_id BIGINT UNSIGNED NOT NULL,
+	sales_person_id TINYINT UNSIGNED NOT NULL,
+    Projects_id INT UNSIGNED NOT NULL,
     PRIMARY KEY (sales_person_id, Projects_id),
     FOREIGN KEY (sales_person_id) REFERENCES SalesPersons(id)
     ON UPDATE CASCADE
@@ -145,54 +145,54 @@ CREATE TABLE ProjectsSalesPersons (
 DROP TABLE IF EXISTS TypeOfElements;
 
 CREATE TABLE TypeOfElements (
-	id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+	id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
 );
 
 DROP TABLE IF EXISTS BidElements;
 
 CREATE TABLE BidElements (
-	id SERIAL PRIMARY KEY,
-    Projects_id BIGINT UNSIGNED,
-    TypeOfElements_id BIGINT UNSIGNED NOT NULL,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+    project_id INT UNSIGNED,
+    type_of_element_id TINYINT UNSIGNED NOT NULL,
     name VARCHAR(10) NOT NULL,
-    amount INT UNSIGNED NOT NULL,
-    height DECIMAL(9,2) UNSIGNED,
-    width DECIMAL (9,2) UNSIGNED,
-    length DECIMAL (9,2) UNSIGNED,
+    amount SMALLINT UNSIGNED NOT NULL,
+    height DECIMAL(4,2) UNSIGNED,
+    width DECIMAL (4,2) UNSIGNED,
+    length DECIMAL (4,2) UNSIGNED,
     volume DECIMAL (9,2) UNSIGNED,
     total_volume DECIMAL (9,2) UNSIGNED,
-    area DECIMAL (9,2) UNSIGNED,
+    area DECIMAL (7,2) UNSIGNED,
     total_area DECIMAL (9,2) UNSIGNED,
     weight DECIMAL (9,2) UNSIGNED,
     total_weight DECIMAL (9,2) UNSIGNED,
-    steel_saturation INT UNSIGNED,
-    tension_steel_saturation INT UNSIGNED,
+    steel_saturation SMALLINT UNSIGNED,
+    tension_steel_saturation SMALLINT UNSIGNED,
     assembly_start DATE,
     assembly_end DATE,
     other_properties JSON,
-    FOREIGN KEY (Projects_id) REFERENCES Projects(id)
+    FOREIGN KEY (project_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE,
-    FOREIGN KEY (TypeOfElements_id) REFERENCES TypeOfElements(id),
+    FOREIGN KEY (type_of_element_id) REFERENCES TypeOfElements(id),
 	CHECK (assembly_start <= assembly_end)
 );
 
 DROP TABLE IF EXISTS Accessories;
 
 CREATE TABLE Accessories(
-	id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
     unit VARCHAR(10),
-    unit_price DECIMAL(9,2) UNSIGNED
+    unit_price DECIMAL(7,2) UNSIGNED
 );
 
 DROP TABLE IF EXISTS AccessoriesBidElements;
 
 CREATE TABLE AccessoriesBidElements(
-	accessory_id BIGINT UNSIGNED NOT NULL,
-    bid_element_id BIGINT UNSIGNED NOT NULL,
-    amount DECIMAL(9,2) NOT NULL,
+	accessory_id INT UNSIGNED NOT NULL,
+    bid_element_id INT UNSIGNED NOT NULL,
+    amount DECIMAL(7,2) NOT NULL,
     PRIMARY KEY (accessory_id, bid_element_id),
 	FOREIGN KEY (accessory_id) REFERENCES Accessories(id)
     ON UPDATE CASCADE
@@ -205,18 +205,18 @@ CREATE TABLE AccessoriesBidElements(
 DROP TABLE IF EXISTS FinancialDetails;
 
 CREATE TABLE FinancialDetails(
-    Projects_id BIGINT UNSIGNED NOT NULL UNIQUE,
-    concrete_cost DECIMAL(9,2) UNSIGNED,
-    steel_cost DECIMAL(9,2) UNSIGNED,
-    tension_steel_cost DECIMAL(9,2) UNSIGNED,
-    framework_cost DECIMAL(9,2) UNSIGNED,
-    man_hour_cost DECIMAL(9,2) UNSIGNED,
-    energy_water_cost DECIMAL(9,2) UNSIGNED,
-    faculty_cost DECIMAL(9,2) UNSIGNED,
+    project_id INT UNSIGNED NOT NULL UNIQUE,
+    concrete_cost DECIMAL(6,2) UNSIGNED,
+    steel_cost DECIMAL(6,2) UNSIGNED,
+    tension_steel_cost DECIMAL(6,2) UNSIGNED,
+    framework_cost DECIMAL(6,2) UNSIGNED,
+    man_hour_cost DECIMAL(6,2) UNSIGNED,
+    energy_water_cost DECIMAL(6,2) UNSIGNED,
+    faculty_cost DECIMAL(6,2) UNSIGNED,
     transport_cost DECIMAL(9,2) UNSIGNED,
     assembly_cost DECIMAL(9,2) UNSIGNED,
-    markup DECIMAL(2,2) UNSIGNED,
-    FOREIGN KEY (Projects_id) REFERENCES Projects(id)
+    markup DECIMAL(3,2) UNSIGNED,
+    FOREIGN KEY (project_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );
@@ -224,8 +224,8 @@ CREATE TABLE FinancialDetails(
 DROP TABLE IF EXISTS PricesOfBidElements;
 
 CREATE TABLE PricesOfBidElements (
-	bid_element_id BIGINT UNSIGNED NOT NULL,
-    amount INT UNSIGNED NOT NULL,
+	bid_element_id INT UNSIGNED NOT NULL,
+    amount SMALLINT UNSIGNED NOT NULL,
     concrete_cost DECIMAL(9,2) UNSIGNED,
     steel_cost DECIMAL(9,2) UNSIGNED,
     tension_steel_cost DECIMAL(9,2) UNSIGNED,
@@ -235,15 +235,15 @@ CREATE TABLE PricesOfBidElements (
     faculty_cost DECIMAL(9,2) UNSIGNED,
     accessory_cost DECIMAL(9,2) UNSIGNED,
     production_cost DECIMAL(9,2) UNSIGNED,
-    total_production_cost DECIMAL(9,2) UNSIGNED,
+    total_production_cost DECIMAL(10,2) UNSIGNED,
 	transport_cost DECIMAL(9,2) UNSIGNED,
-    total_transport_cost DECIMAL(9,2) UNSIGNED,
+    total_transport_cost DECIMAL(10,2) UNSIGNED,
     assembly_cost DECIMAL(9,2) UNSIGNED,
-    total_assembly_cost DECIMAL(9,2) UNSIGNED,
+    total_assembly_cost DECIMAL(10,2) UNSIGNED,
     element_cost DECIMAL(9,2) UNSIGNED,
-    total_element_cost DECIMAL(9,2) UNSIGNED,
+    total_element_cost DECIMAL(10,2) UNSIGNED,
     element_price DECIMAL(9,2) UNSIGNED,
-    total_element_price DECIMAL(9,2) UNSIGNED,
+    total_element_price DECIMAL(10,2) UNSIGNED,
     FOREIGN KEY (bid_element_id) REFERENCES BidElements(id)
 	ON UPDATE CASCADE
     ON DELETE CASCADE
@@ -252,15 +252,15 @@ CREATE TABLE PricesOfBidElements (
 DROP TABLE IF EXISTS Offers;
 
 CREATE TABLE Offers (
-	id SERIAL PRIMARY KEY,
-    Projects_id BIGINT UNSIGNED NOT NULL,
-    total_production_cost DECIMAL(9,2) UNSIGNED,
-    total_transport_cost DECIMAL(9,2) UNSIGNED,
-    total_assembly_cost DECIMAL(9,2) UNSIGNED,
-    total_cost DECIMAL(9,2) UNSIGNED,
-    markup DECIMAL(2,2) UNSIGNED,
-    total_price DECIMAL(9,2) UNSIGNED,
-	FOREIGN KEY (Projects_id) REFERENCES Projects(id)
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE PRIMARY KEY,
+    project_id INT UNSIGNED NOT NULL,
+    total_production_cost DECIMAL(11,2) UNSIGNED,
+    total_transport_cost DECIMAL(11,2) UNSIGNED,
+    total_assembly_cost DECIMAL(11,2) UNSIGNED,
+    total_cost DECIMAL(11,2) UNSIGNED,
+    markup DECIMAL(3,2) UNSIGNED,
+    total_price DECIMAL(11,2) UNSIGNED,
+	FOREIGN KEY (project_id) REFERENCES Projects(id)
     ON UPDATE CASCADE
     ON DELETE CASCADE
 );

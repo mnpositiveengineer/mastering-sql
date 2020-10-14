@@ -35,7 +35,7 @@ BEGIN
     INTO fd_concrete_cost, b_volume
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_concrete_cost = fd_concrete_cost * b_volume;
@@ -60,7 +60,7 @@ BEGIN
     INTO fd_steel_cost, b_volume, b_steel_saturation
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_steel_cost = fd_steel_cost * b_steel_saturation * b_volume;
@@ -85,7 +85,7 @@ BEGIN
     INTO fd_tension_steel_cost, b_volume, b_tension_steel_saturation
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_tension_steel_cost = fd_tension_steel_cost * b_tension_steel_saturation * b_volume;
@@ -111,7 +111,7 @@ BEGIN
     INTO fd_framework_cost, b_width, b_height, b_length
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_framework_cost = fd_framework_cost * (b_length * b_width + 2 * b_height * b_width + 2 * b_height * b_length) ;
@@ -135,7 +135,7 @@ BEGIN
     INTO fd_man_hour_cost, b_volume
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_man_hour_cost = fd_man_hour_cost * b_volume ;
@@ -159,7 +159,7 @@ BEGIN
     INTO fd_energy_water_cost, b_volume
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_energy_water_cost = fd_energy_water_cost * b_volume ;
@@ -183,7 +183,7 @@ BEGIN
     INTO fd_faculty_cost, b_volume
     FROM bidelements b
     JOIN financialdetails fd
-    USING (Projects_id)
+    USING (project_id)
     WHERE b.id = bid_element_id;
     
     SET pb_faculty_cost = fd_faculty_cost * b_volume ;
@@ -284,28 +284,28 @@ RETURNS DECIMAL(9,2)
 READS SQL DATA
 BEGIN
 	DECLARE type_of_element INT;
-    DECLARE Projects_id INT;
+    DECLARE project_id INT;
     DECLARE total_weight DECIMAL(9,2);
     DECLARE total_amount INT;
 	DECLARE fd_transport_cost INT;
     DECLARE pb_transport_cost DECIMAL(9,2);
     
-    SELECT b.TypeOfElementss_id, b.Projects_id
-    INTO type_of_element, Projects_id
+    SELECT b.TypeOfElementss_id, b.project_id
+    INTO type_of_element, project_id
     FROM bidelements b
     WHERE b.id = bid_element_id;
     
 	SELECT SUM(b.total_weight), SUM(amount)
     INTO total_weight, total_amount
 	FROM bidelements b
-	WHERE b.Projects_id = Projects_id
+	WHERE b.project_id = project_id
 	AND b.TypeOfElementss_id = type_of_element
 	GROUP BY b.TypeOfElementss_id;
     
     SELECT fd.transport_cost
     INTO fd_transport_cost
     FROM financialdetails fd
-    WHERE fd.Projects_id = Projects_id;
+    WHERE fd.project_id = project_id;
     
     SET pb_transport_cost = (CEILING(total_weight/21) * fd_transport_cost)/total_amount;
     
@@ -342,17 +342,17 @@ RETURNS INT
 READS SQL DATA
 BEGIN
 	DECLARE assembly_cost INT;
-    DECLARE Projects_id INT;
+    DECLARE project_id INT;
     
-	SELECT b.Projects_id
-    INTO Projects_id
+	SELECT b.project_id
+    INTO project_id
     FROM bidelements b
     WHERE b.id = bid_element_id;
     
     SELECT fd.assembly_cost
     INTO assembly_cost
     FROM financialdetails fd
-    WHERE fd.Projects_id = Projects_id;
+    WHERE fd.project_id = project_id;
     
     RETURN assembly_cost;
 END$$
@@ -427,11 +427,11 @@ RETURNS DECIMAL (9,2)
 READS SQL DATA
 BEGIN
 	DECLARE markup DECIMAL (2,2);
-	DECLARE Projects_id INT;
+	DECLARE project_id INT;
     DECLARE element_price DECIMAL (9,2);
     
-	SELECT b.Projects_id
-    INTO Projects_id
+	SELECT b.project_id
+    INTO project_id
     FROM bidelements b
     WHERE b.id = bid_element_id;
     
@@ -439,7 +439,7 @@ BEGIN
     SELECT fd.markup
     INTO markup
     FROM financialdetails fd
-    WHERE fd.Projects_id = Projects_id;
+    WHERE fd.project_id = project_id;
     
     SET element_price = (SELECT calculate_element_cost(bid_element_id)) * (1 + markup);
     

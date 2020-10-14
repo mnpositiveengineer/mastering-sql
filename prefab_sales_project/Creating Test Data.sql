@@ -246,7 +246,7 @@ VALUES
 (14, "T24"),
 (15, "T27");
 
-INSERT INTO BidElements (id, Projects_id, TypeOfElements_id, name, amount, height, width, length, steel_saturation, tension_steel_saturation) VALUES
+INSERT INTO BidElements (id, project_id, type_of_element_id, name, amount, height, width, length, steel_saturation, tension_steel_saturation) VALUES
 (1, 2, 1, 'W56', 20, 0.09, 0.58, 9.63, 137, 23),
 (2, 24, 4, 'T97', 8, 0.76, 0.93, 2.57, 134, 65),
 (3, 4, 6, 'V56', 6, 0.13, 0.7, 6.03, 76, 26),

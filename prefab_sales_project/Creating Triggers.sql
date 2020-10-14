@@ -17,7 +17,7 @@ THEN
 INSERT INTO SalesPersons (id, email, name)
 VALUES (1, 'director@prefab.com', 'director');
 END IF;
-INSERT INTO ProjectsSalesPersons (sales_person_id, Projects_id)
+INSERT INTO ProjectsSalesPersons (sales_person_id, project_id)
 VALUES (1, NEW.id);
 END//
 DELIMITER ;
@@ -34,13 +34,13 @@ BEGIN
 IF EXISTS 
 (
 	SELECT * FROM 
-		(SELECT Projects_id, count(sales_person_id) AS number 
+		(SELECT project_id, count(sales_person_id) AS number 
 		FROM ProjectsSalesPersons 
-		WHERE Projects_id IN 
-			(SELECT Projects_id 
+		WHERE project_id IN 
+			(SELECT project_id 
 			FROM ProjectsSalesPersons 
 			WHERE sales_person_id = OLD.id) 
-	GROUP BY Projects_id) a
+	GROUP BY project_id) a
 	WHERE a.number = 1
 )
 THEN
@@ -60,13 +60,13 @@ BEGIN
 IF EXISTS 
 (
 	SELECT * FROM 
-		(SELECT Projects_id, count(sales_person_id) AS number 
+		(SELECT project_id, count(sales_person_id) AS number 
 		FROM ProjectsSalesPersons 
-		WHERE Projects_id IN 
-			(SELECT Projects_id 
+		WHERE project_id IN 
+			(SELECT project_id 
 			FROM ProjectsSalesPersons 
 			WHERE sales_person_id = OLD.sales_person_id) 
-	GROUP BY Projects_id) a
+	GROUP BY project_id) a
 	WHERE a.number = 1
 )
 THEN
@@ -86,7 +86,7 @@ BEGIN
 CREATE VIEW ProjectssWithoutSalesPersons AS
 SELECT p.id FROM Projects p
 LEFT JOIN ProjectsSalesPersons ps
-ON p.id = ps.Projects_id
+ON p.id = ps.project_id
 WHERE ps.sales_person_id IS NULL;
 IF EXISTS (SELECT * FROM ProjectssWithoutSalesPersons)
 THEN
@@ -102,18 +102,18 @@ FOR EACH ROW
 BEGIN
 CREATE VIEW ProjectssWithNoSalesPersons AS
 SELECT * FROM 
-	(SELECT Projects_id, count(sales_person_id) AS number 
+	(SELECT project_id, count(sales_person_id) AS number 
 	FROM ProjectsSalesPersons 
-	WHERE Projects_id IN 
-		(SELECT Projects_id 
+	WHERE project_id IN 
+		(SELECT project_id 
 		FROM ProjectsSalesPersons 
 		WHERE sales_person_id = OLD.id) 
-GROUP BY Projects_id) a
+GROUP BY project_id) a
 WHERE a.number = 1;
 IF EXISTS (SELECT * FROM ProjectssWithNoSalesPersons)
 THEN
 UPDATE ProjectsSalesPersons SET sales_person_id = 1
-WHERE Projects_id IN (SELECT Projects_id FROM ProjectssWithNoSalesPersons);
+WHERE project_id IN (SELECT project_id FROM ProjectssWithNoSalesPersons);
 END IF;
 END//
 DELIMITER ;
