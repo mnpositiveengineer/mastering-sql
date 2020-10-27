@@ -1,8 +1,9 @@
 # mastering-sql
 
-Excercising SQL based on: <br><br>
-First Course In Database Systems.Third Edition.<br><br>
-https://codewithmosh.com/<br><br>
-creating own database of prefabricated elements
+Excercising PL/SQL using: <br><br>
+<ul>
+<li>First Course In Database Systems.Third Edition.</li>
+<li>https://codewithmosh.com/</li>
+</ul>
 
 
