@@ -6,6 +6,6 @@ Excercising PL/SQL using: <br><br>
 <li>https://codewithmosh.com/p/complete-sql-mastery</li>
 </ul>
 
-<a href='\Code With Mosh\certificate-of-completion-for-complete-sql-mastery.pdf'>Here is the certificate :)</a>
+<a href='\Code With Mosh\certificate-of-completion-for-complete-sql-mastery.pdf'>Certificate is here.</a>
 
 
